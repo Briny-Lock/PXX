@@ -22,7 +22,7 @@ public abstract class Shape implements IDrawable{
 	}
 	
 	@Override
-	public abstract void draw(IDrawVisitor v);
+	public abstract void draw(IDrawVisitor v, boolean hasFill);
 	
 	/**
 	 * @return the c
