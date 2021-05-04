@@ -2,20 +2,30 @@ package csc2a.px.model.game;
 
 import java.util.ArrayList;
 
-import csc2a.px.model.shape.CarriageShape;
-import csc2a.px.model.shape.EORIENTATION_TYPE;
 import csc2a.px.model.shape.Shape;
+import csc2a.px.model.visitor.IDrawVisitor;
+import csc2a.px.model.visitor.IDrawable;
+import javafx.geometry.Point2D;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
-public class Carriage {
+public class Carriage implements IDrawable {
 	public static final int DEF_MAX_GOODS = 6;
 
-	private CarriageShape carriageShape;
+	private Point2D position;
+	private Image carriageImage;
 	private ArrayList<Shape> goods;
+	private float rotation;
+	private Color c;
+	
 	private int maxGoods = DEF_MAX_GOODS;
 	
-	public Carriage(Color c, double centX, double centY, double w, double h, EORIENTATION_TYPE orientation) {
-		carriageShape = new CarriageShape(c, centX, centY, w, h, orientation);
+	public Carriage(Color c, Point2D position, Image carriageImage, float rotation) {
+		this.c = c;
+		this.position = position;
+		this.carriageImage = carriageImage;
+		carriageImage.
+		this.rotation = rotation;
 	}
 	
 	public boolean addGoods(Shape goods) {
@@ -35,19 +45,46 @@ public class Carriage {
 		return null;
 	}
 	
-	public void updateXY(double centX, double centY) {
-		carriageShape.updateXY(centX, centY);
+	public void updatePos(Point2D pos) {
+		position = pos;
 	}
 	
-	public void setOrientation(EORIENTATION_TYPE orientation) {
-		carriageShape.setOrientation(orientation);
+	public void setRotation (float rotation) {
+		this.rotation = rotation;
 	}
 	
-	public double getX() {
-		return carriageShape.getX();
+	@Override
+	public void draw(IDrawVisitor v, boolean hasFill) {
+		v.visit(this);
+	}
+
+	/**
+	 * @return the position
+	 */
+	public Point2D getPosition() {
+		return position;
+	}
+
+	/**
+	 * @return the carriageImage
+	 */
+	public Image getCarriageImage() {
+		return carriageImage;
+	}
+
+	/**
+	 * @return the rotation
+	 */
+	public float getRotation() {
+		return rotation;
+	}
+
+	/**
+	 * @return the c
+	 */
+	public Color getC() {
+		return c;
 	}
 	
-	public double getY() {
-		return carriageShape.getY();
-	}
+	
 }

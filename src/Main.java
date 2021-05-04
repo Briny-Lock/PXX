@@ -1,5 +1,7 @@
 import java.util.ArrayList;
 
+import csc2a.px.model.game.GameLoop;
+import csc2a.px.model.game.Wagon;
 import csc2a.px.model.shape.Circle;
 import csc2a.px.model.shape.Line;
 import csc2a.px.model.shape.Rectangle;
@@ -8,6 +10,8 @@ import csc2a.px.model.shape.Triangle;
 import csc2a.px.model.ui.GameCanvas;
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -34,6 +38,23 @@ public class Main extends Application{
 		ArrayList<Shape> shapes = demoShapes();
 		
 		canvas.setShapes(shapes);
+		
+		Wagon wagon = new Wagon(Color.CADETBLUE, 0, 250, 20, 10, 20);
+		wagon.setDest(500, 250);
+		
+		canvas.addWagon(wagon);
+		
+		GameLoop loop = new GameLoop() {
+			
+			@Override
+			public void tick(float deltaTime) {
+				canvas.redrawCanvas(deltaTime);
+				
+			}
+		};
+		
+		loop.start();
+		
 	}
 
 	public ArrayList<Shape> demoShapes() {
@@ -51,6 +72,8 @@ public class Main extends Application{
 		shapes.add(r1);
 		shapes.add(t1);
 		return shapes;
+		
+		
 	}
 	
 }

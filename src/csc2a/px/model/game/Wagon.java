@@ -4,6 +4,9 @@ import java.util.ArrayList;
 
 import csc2a.px.model.shape.EORIENTATION_TYPE;
 import csc2a.px.model.shape.Shape;
+import csc2a.px.model.visitor.IDrawVisitor;
+import javafx.geometry.Point2D;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
 public class Wagon {
@@ -20,27 +23,26 @@ public class Wagon {
 	
 	private ArrayList<Carriage> carriages;
 	private int maxCarriages = DEF_MAX_CARRIAGES;
-	private EORIENTATION_TYPE orientation;
+	private float rotation;
 	
 	private Color c;
 	
-	private double currX;
-	private double currY;
-	private double destX;
-	private double destY;
-	private double prevDestX;
-	private double prevDestY;
+	private Point2D pos;
+	private Point2D dest;
+	private Point2D prevPos;
 	
 	private double carrW;
 	private double carrH;
 	
-	public Wagon(Color c, double x, double y, double maxspeed, double carrW, double carrH) {
+	public Wagon(Color c, Point2D position , double maxspeed, double carrW, double carrH, Image carriageImage) {
 		this.c = c;
-		this.currX = x;
-		this.currY = y;
+		this.pos = position;
 		this.maxspeed = maxspeed;
 		this.carrW = carrW;
 		this.carrH = carrH;
+		this.carriages = new ArrayList<>();
+		this.rotation = 0.0f;
+		addCarriage();
 	}
 	
 	public boolean addGoods(Shape goods) {
@@ -54,7 +56,7 @@ public class Wagon {
 	
 	public boolean addCarriage() {
 		if (carriages.size() < maxCarriages) {
-			carriages.add(new Carriage(c, currX, currY, carrW, carrH, orientation));
+			carriages.add(new Carriage(c, pos));
 			renderCarriages();
 			return true;
 		} else
@@ -70,7 +72,8 @@ public class Wagon {
 		return null;
 	}
 	
-	public void move(double deltaTime) {
+	public void move(float deltaTime) {
+		System.out.printf("%f : (%f,%f) at xspeed: %.5f and yspeed: %.5f\n", deltaTime, currX, currY, xspeed, yspeed);
 		// deltaTime is used to run independently from frame rate
 		if (Math.abs(destX - currX) < 0.5 && Math.abs(destY - currY) < 0.5) {
 			currX = destX;
@@ -79,19 +82,20 @@ public class Wagon {
 		}
 		
 		//Speed up
-		if (xspeed < maxspeed) {
-			xspeed += acceleration * (prevDestX - currX);
+		if (currX != destX && currY != destY) {
+			if (xspeed < maxspeed) {
+				xspeed += acceleration * (prevDestX - currX);
+			}
+			if (xspeed > maxspeed) {
+				xspeed = maxspeed;
+			}
+			if (yspeed < maxspeed) {
+				yspeed += acceleration * (prevDestY - currY);
+			}
+			if (yspeed > maxspeed) {
+				yspeed = maxspeed;
+			}
 		}
-		if (xspeed > maxspeed) {
-			xspeed = maxspeed;
-		}
-		if (yspeed < maxspeed) {
-			yspeed += acceleration * (prevDestY - currY);
-		}
-		if (yspeed > maxspeed) {
-			yspeed = maxspeed;
-		}
-		
 		// Slow down
 		if (Math.abs(destX - currX) < DEF_SLOW_DIST && currX != destX) {				
 			// deceleration for a smooth stop
@@ -116,59 +120,69 @@ public class Wagon {
 	
 	private void renderCarriages() {
 		double xShift = 0, yShift = 0;
-		switch (orientation) {
-		case DIAG_LEFT:
-			if (currX > destX) {
-				xShift = -(carrH + DEF_CARR_GAP)/-Math.sqrt(2); // sin(-45) = -1/sqrt(2)
-				yShift = (carrH + DEF_CARR_GAP)/Math.sqrt(2); // cos(-45) = 1/sqrt(2)
-			} else {
-				xShift = (carrH + DEF_CARR_GAP)/-Math.sqrt(2);
-				yShift = -(carrH + DEF_CARR_GAP)/Math.sqrt(2);
-			}
-			break;
-		case DIAG_RIGHT:
-			if (currX > destX) {
-				xShift = (carrH + DEF_CARR_GAP)/Math.sqrt(2); // sin(45) = 1/sqrt(2)
-				yShift = -(carrH + DEF_CARR_GAP)/Math.sqrt(2); // cos(45) = 1/sqrt(2)
-			} else {
-				xShift = -(carrH + DEF_CARR_GAP)/Math.sqrt(2);
-				yShift = (carrH + DEF_CARR_GAP)/Math.sqrt(2);
-			}
-			break;
-		case LEFT_RIGHT:
-			if (currX > destX) {
-				xShift = (carrH + DEF_CARR_GAP);
-				yShift = 0;
-			} else {
-				xShift = -(carrH + DEF_CARR_GAP);
-				yShift = 0;
-			}
-			break;
-		case UP_DOWN:
-			if (currY > destY) {
-				xShift = 0;
-				yShift = (carrH + DEF_CARR_GAP);
-			} else {
-				xShift = 0;
-				yShift = -(carrH + DEF_CARR_GAP);
-			}
-			break;
-		}
+//		switch (orientation) {
+//		case DIAG_LEFT:
+//			if (currX > destX) {
+//				xShift = -(carrH + DEF_CARR_GAP)/-Math.sqrt(2); // sin(-45) = -1/sqrt(2)
+//				yShift = (carrH + DEF_CARR_GAP)/Math.sqrt(2); // cos(-45) = 1/sqrt(2)
+//			} else {
+//				xShift = (carrH + DEF_CARR_GAP)/-Math.sqrt(2);
+//				yShift = -(carrH + DEF_CARR_GAP)/Math.sqrt(2);
+//			}
+//			break;
+//		case DIAG_RIGHT:
+//			if (currX > destX) {
+//				xShift = (carrH + DEF_CARR_GAP)/Math.sqrt(2); // sin(45) = 1/sqrt(2)
+//				yShift = -(carrH + DEF_CARR_GAP)/Math.sqrt(2); // cos(45) = 1/sqrt(2)
+//			} else {
+//				xShift = -(carrH + DEF_CARR_GAP)/Math.sqrt(2);
+//				yShift = (carrH + DEF_CARR_GAP)/Math.sqrt(2);
+//			}
+//			break;
+//		case LEFT_RIGHT:
+//			if (currX > destX) {
+//				xShift = (carrH + DEF_CARR_GAP);
+//				yShift = 0;
+//			} else {
+//				xShift = -(carrH + DEF_CARR_GAP);
+//				yShift = 0;
+//			}
+//			break;
+//		case UP_DOWN:
+//			if (currY > destY) {
+//				xShift = 0;
+//				yShift = (carrH + DEF_CARR_GAP);
+//			} else {
+//				xShift = 0;
+//				yShift = -(carrH + DEF_CARR_GAP);
+//			}
+//			break;
+//		}
 
-		carriages.get(0).updateXY(currX + xShift, currY + yShift);
+//		carriages.get(0).updateXY(currX + xShift, currY + yShift);
 		for (int i = 1; i < carriages.size(); i++) {
 			carriages.get(i).updateXY(carriages.get(i - 1).getX() + xShift, carriages.get(i - 1).getY() + yShift);
 		}
 	}
 	
-	public void setDest(double destX, double destY, EORIENTATION_TYPE orientation) {
+	public void setDest(double destX, double destY) {
 		this.prevDestX = this.destX;
 		this.prevDestY = this.destY;
 		this.destX = destX;
 		this.destY = destY;
-		this.orientation = orientation;
+		
+//		if (currX != destX && currY == destY) {
+//			orientation = EORIENTATION_TYPE.LEFT_RIGHT;
+//		} else if(currY != destY && currX == destX) {
+//			orientation = EORIENTATION_TYPE.UP_DOWN;
+//		} else if((destX < currX && destY < currY) || (destX < currX && destY < currY)) {
+//			orientation = EORIENTATION_TYPE.DIAG_RIGHT;
+//		} else {
+//			orientation = EORIENTATION_TYPE.DIAG_LEFT;
+//		}
+		
 		for (Carriage carriage : carriages) {
-			carriage.setOrientation(orientation);
+//			carriage.setOrientation(orientation);
 		}
 		
 		if (currX > destX) { xspeed = -DEF_SLOWEST; }
@@ -178,5 +192,11 @@ public class Wagon {
 		if (currY > destY) { yspeed = DEF_SLOWEST; }
 		else if (currY > destY) { yspeed = -DEF_SLOWEST; }
 		else { yspeed = 0; }
+	}
+	
+	public void drawCarriages(IDrawVisitor v, boolean hasFill) {
+		for (Carriage carriage : carriages) {
+			carriage.draw(v, hasFill);
+		}
 	}
 }

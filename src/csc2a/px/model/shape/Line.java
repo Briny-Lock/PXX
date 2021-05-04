@@ -44,7 +44,7 @@ public class Line extends Polygon {
 
 	@Override
 	public void draw(IDrawVisitor v, boolean hasFill) {
-		v.visit(this, hasFill);
+		v.visit(this);
 	}
 	
 	public double[] getBridgeXCoords() { return bridgeXCoords; }
