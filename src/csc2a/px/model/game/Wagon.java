@@ -111,7 +111,7 @@ public class Wagon {
 //		}
 		Point2D motionVector = new Point2D(0, 0);
 		if(deltaTime < 10)
-			motionVector = new Point2D((float) (Math.sin(Math.toRadians(-rotation)) * deltaTime * 20), (float) (Math.cos(Math.toRadians(-rotation)) * deltaTime * 20));
+			motionVector = new Point2D((float) (Math.cos(Math.toRadians(-rotation)) * deltaTime * 20), (float) (Math.sin(Math.toRadians(-rotation)) * deltaTime * 20));
 		//System.out.println(motionVector.getX() + ":" + motionVector.getY());
 		pos = pos.add(motionVector);
 		
@@ -124,7 +124,7 @@ public class Wagon {
 		xShift = (carrH + DEF_CARR_GAP)*Math.cos(Math.toRadians(rotation)); // d*cos(t);
 		yShift = (carrH + DEF_CARR_GAP)*Math.sin(Math.toRadians(rotation)); // d*sin(t);
 
-		carriages.get(0).updatePos(pos.add(xShift, yShift));
+		carriages.get(0).updatePos(pos);
 		for (int i = 1; i < carriages.size(); i++) {
 			carriages.get(i).updatePos(carriages.get(i - 1).getPosition().add(xShift, yShift));
 		}

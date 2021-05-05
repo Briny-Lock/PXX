@@ -10,6 +10,7 @@ import csc2a.px.model.shape.Triangle;
 import csc2a.px.model.ui.GameCanvas;
 import javafx.application.Application;
 import javafx.geometry.Point2D;
+import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -26,7 +27,7 @@ public class Main extends Application{
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		GameCanvas canvas = new GameCanvas();
-		StackPane root = new StackPane();
+		Group root = new Group();
 		root.getChildren().add(canvas);
 		Scene scene = new Scene(root, 500, 500);
 		scene.setFill(Color.web("#2f2f2f"));
@@ -40,7 +41,8 @@ public class Main extends Application{
 		
 		canvas.setShapes(shapes);
 		
-		Image carriageImage = new Image("file:/assets/yrown0tecr151.jpg");
+		Image carriageImage = new Image(getClass().getResource("assets/carriage.png").toExternalForm());
+		
 		Wagon wagon = new Wagon(Color.BISQUE, new Point2D(1, 250), 5, 10, carriageImage);
 		wagon.setDest(new Point2D(500, 250));
 		canvas.addWagon(wagon);
