@@ -1,14 +1,15 @@
 package csc2a.px.model.shape;
 
 import csc2a.px.model.visitor.IDrawVisitor;
+import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 
-public class Rectangle extends Default_Shape {
+public class Rectangle extends Shape {
 	private double w;
 	private double h;
 
-	public Rectangle(Color c, double x, double y, double w, double h) {
-		super(c, ESHAPE_TYPE.RECTANGLE, x, y);
+	public Rectangle(Color c, Point2D pos, double w, double h) {
+		super(c, ESHAPE_TYPE.RECTANGLE, pos);
 		this.w = w;
 		this.h = h;	
 	}

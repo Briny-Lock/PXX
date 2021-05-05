@@ -12,6 +12,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.transform.Rotate;
 
+
 public class DrawShapesVisitor implements IDrawVisitor {
 	private GraphicsContext gc;
 	
@@ -48,10 +49,10 @@ public class DrawShapesVisitor implements IDrawVisitor {
 		gc.setLineWidth(3);
 		if (hasFill) {
 			gc.setFill(c.getC());
-			gc.fillOval(c.getX(), c.getY(), c.getR() * 2, c.getR() * 2);
+			gc.fillOval(c.getPos().getX(), c.getPos().getY(), c.getR() * 2, c.getR() * 2);
 		} else {
 			gc.setStroke(c.getC());
-			gc.strokeOval(c.getX(), c.getY(), c.getR() * 2, c.getR() * 2);
+			gc.strokeOval(c.getPos().getX(), c.getPos().getY(), c.getR() * 2, c.getR() * 2);
 		}
 	}
 
@@ -61,10 +62,10 @@ public class DrawShapesVisitor implements IDrawVisitor {
 		gc.setLineWidth(3);
 		if (hasFill) {
 			gc.setFill(r.getC());
-			gc.fillRect(r.getX() - r.getW()/2, r.getY() - r.getH()/2, r.getW(), r.getH());
+			gc.fillRect(r.getPos().getX() - r.getW()/2, r.getPos().getY() - r.getH()/2, r.getW(), r.getH());
 		} else {
 			gc.setStroke(r.getC());
-			gc.strokeRect(r.getX() - r.getW()/2, r.getY() - r.getH()/2, r.getW(), r.getH());
+			gc.strokeRect(r.getPos().getX() - r.getW()/2, r.getPos().getY() - r.getH()/2, r.getW(), r.getH());
 		}
 	}
 
@@ -84,7 +85,9 @@ public class DrawShapesVisitor implements IDrawVisitor {
 	@Override
 	public void visit(Carriage c) {
 		gc.save();
-		float[] hsb = Color.RGBtoHSB((int) c.getC().getRed(), (int) c.getC().getGreen(), (int) c.getC().getBlue(), null);
+		float[] hsb = new float[3];
+		Color.RGBtoHSB((int) (c.getC().getRed() * 255), (int) (c.getC().getGreen() * 255), (int) (c.getC().getBlue() * 255), hsb);
+//		System.out.printf("RGB: %d:%d:%d vs. HSB: %f:%f:%f\n", (int) (c.getC().getRed() * 255), (int) (c.getC().getGreen() * 255), (int) (c.getC().getBlue() * 255), (hsb[0]), (hsb[1]), (hsb[2]));
 		ColorAdjust effect = new ColorAdjust();
 		effect.setHue(hsb[0]);
 		effect.setSaturation(hsb[1]);
@@ -93,7 +96,6 @@ public class DrawShapesVisitor implements IDrawVisitor {
 		
 		transformContext(c);
 		gc.drawImage(c.getCarriageImage(), c.getPosition().getX(), c.getPosition().getY(), c.getW(), c.getH());
-		System.out.printf("Drew image %s at %.2f:%.2f with %f width and %f height\n", c.getCarriageImage().getUrl(), c.getPosition().getX(), c.getPosition().getY(), c.getW(), c.getH());
 		gc.restore();
 	}
 	
@@ -103,7 +105,7 @@ public class DrawShapesVisitor implements IDrawVisitor {
 	
 	private void transformContext(Carriage c){
         Point2D centre = c.getCenter();
-        Rotate r = new Rotate(c.getRotation(), centre.getX(), centre.getY());
+        Rotate r = new Rotate(c.getRotation() + 90, centre.getX(), centre.getY());
         gc.setTransform(r.getMxx(), r.getMyx(), r.getMxy(), r.getMyy(), r.getTx(), r.getTy());
     }
 	

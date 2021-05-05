@@ -111,7 +111,7 @@ public class Wagon {
 //		}
 		Point2D motionVector = new Point2D(0, 0);
 		if(deltaTime < 10)
-			motionVector = new Point2D((float) (Math.cos(Math.toRadians(-rotation)) * deltaTime * 20), (float) (Math.sin(Math.toRadians(-rotation)) * deltaTime * 20));
+			motionVector = new Point2D((float) (Math.cos(Math.toRadians(-rotation)) * deltaTime * 20), (float) (Math.sin(Math.toRadians(rotation)) * deltaTime * 20));
 		//System.out.println(motionVector.getX() + ":" + motionVector.getY());
 		pos = pos.add(motionVector);
 		
@@ -134,16 +134,14 @@ public class Wagon {
 		this.prevPos = pos;
 		this.dest = dest;
 		
-		// TODO calculate rotation
-		Point2D p1 = dest.subtract(pos);
-		Point2D p2 = new Point2D(1, 0);
-		double tempRot = p2.angle(p1);
+		double m = (dest.getY() - pos.getY())/(dest.getX() - pos.getX());
+		double tempRot = Math.atan(m);
 		if (tempRot == Double.NaN) {
 			rotation = 90;
 		} else {
-			rotation = (float) tempRot;
+			rotation = (float) (tempRot * 180/Math.PI);
 		}
-		
+		System.out.println("Rotation: " + rotation);
 		//System.out.println(pos.getX() + ":" + pos.getY() + " vs. " + dest.getX() + ":" + dest.getY() + " at rotation: " + rotation);
 		for (Carriage carriage : carriages) {
 			carriage.setRotation(rotation);

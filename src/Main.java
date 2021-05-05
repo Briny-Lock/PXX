@@ -35,15 +35,9 @@ public class Main extends Application{
 		primaryStage.setScene(scene);
 		primaryStage.show();
 		
+		Image carriageImage = new Image(getClass().getResourceAsStream(("assets/carriage.png")));
 		
-		
-		ArrayList<Shape> shapes = demoShapes();
-		
-		canvas.setShapes(shapes);
-		
-		Image carriageImage = new Image(getClass().getResource("assets/carriage.png").toExternalForm());
-		
-		Wagon wagon = new Wagon(Color.BISQUE, new Point2D(1, 250), 5, 10, carriageImage);
+		Wagon wagon = new Wagon(Color.ORANGE, new Point2D(1, 250), 10, 20, carriageImage);
 		wagon.setDest(new Point2D(500, 250));
 		canvas.addWagon(wagon);
 		
@@ -59,23 +53,5 @@ public class Main extends Application{
 		
 	}
 
-	public ArrayList<Shape> demoShapes() {
-		Line l1 = new Line(Color.RED, 25, 30, 345, 250);
-		double[] bridgeXCoord = {200, 280};
-		double[] bridgeYCoord = {40, 40};
-		Line l2 = new Line(Color.BLUE, 40, 40, 410, 40, bridgeXCoord, bridgeYCoord);
-		Circle c1 = new Circle(Color.GRAY, 300, 300, 10); 
-		Rectangle r1 = new Rectangle(Color.BLUEVIOLET, 25, 65, 20, 20);
-		Triangle t1 = new Triangle(Color.YELLOW, 250, 80, 20);
-		ArrayList<Shape> shapes = new ArrayList<>();
-		shapes.add(l1);
-		shapes.add(l2);
-		shapes.add(c1);
-		shapes.add(r1);
-		shapes.add(t1);
-		return shapes;
-		
-		
-	}
 	
 }

@@ -29,11 +29,10 @@ public class GameCanvas extends Canvas {
 	}
 	
 	public void redrawCanvas(float deltaTime) {
+		getGraphicsContext2D().clearRect(0, 0, this.getWidth(), this.getHeight());
 		visitor.setGc(getGraphicsContext2D());
 		wagon.move(deltaTime);
 		wagon.drawCarriages(visitor, true);
-		for (Shape shape : shapes) {
-			shape.draw(visitor, false);
-		}
+		
 	}
 }

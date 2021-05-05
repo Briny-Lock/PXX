@@ -1,14 +1,15 @@
 package csc2a.px.model.shape;
 
 import csc2a.px.model.visitor.IDrawVisitor;
+import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 
-public class Circle extends Default_Shape {
+public class Circle extends Shape {
 	private double r;
 	
 	
-	public Circle(Color c, double x, double y, double r) {
-		super(c, ESHAPE_TYPE.CIRCLE, x, y);
+	public Circle(Color c, Point2D pos, double r) {
+		super(c, ESHAPE_TYPE.CIRCLE, pos);
 		this.r = r;
 	}
 
