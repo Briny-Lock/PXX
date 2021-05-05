@@ -9,6 +9,7 @@ import csc2a.px.model.shape.Shape;
 import csc2a.px.model.shape.Triangle;
 import csc2a.px.model.ui.GameCanvas;
 import javafx.application.Application;
+import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -39,17 +40,16 @@ public class Main extends Application{
 		
 		canvas.setShapes(shapes);
 		
-		Wagon wagon = new Wagon(Color.CADETBLUE, 0, 250, 20, 10, 20);
-		wagon.setDest(500, 250);
-		
+		Image carriageImage = new Image("file:/assets/yrown0tecr151.jpg");
+		Wagon wagon = new Wagon(Color.BISQUE, new Point2D(1, 250), 5, 10, carriageImage);
+		wagon.setDest(new Point2D(500, 250));
 		canvas.addWagon(wagon);
 		
 		GameLoop loop = new GameLoop() {
 			
 			@Override
 			public void tick(float deltaTime) {
-				canvas.redrawCanvas(deltaTime);
-				
+				canvas.redrawCanvas(deltaTime);				
 			}
 		};
 		

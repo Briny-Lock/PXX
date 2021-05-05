@@ -5,10 +5,11 @@ import javafx.animation.AnimationTimer;
 public abstract class GameLoop extends AnimationTimer {
 
 	boolean isPaused = false, pauseScheduled = false, playScheduled = false;
-		
+
+	long lastFrameTimeNanos;
+	
 	@Override
 	public void handle(long now) {
-		long lastFrameTimeNanos = now;
 	    if (playScheduled) {
 	        isPaused = false;
 	        playScheduled = false;

@@ -7,8 +7,10 @@ import csc2a.px.model.shape.Circle;
 import csc2a.px.model.shape.Line;
 import csc2a.px.model.shape.Rectangle;
 import csc2a.px.model.shape.Triangle;
+import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.effect.ColorAdjust;
+import javafx.scene.transform.Rotate;
 
 public class DrawShapesVisitor implements IDrawVisitor {
 	private GraphicsContext gc;
@@ -81,18 +83,28 @@ public class DrawShapesVisitor implements IDrawVisitor {
 
 	@Override
 	public void visit(Carriage c) {
-		clear();
+		gc.save();
 		float[] hsb = Color.RGBtoHSB((int) c.getC().getRed(), (int) c.getC().getGreen(), (int) c.getC().getBlue(), null);
 		ColorAdjust effect = new ColorAdjust();
 		effect.setHue(hsb[0]);
 		effect.setSaturation(hsb[1]);
 		effect.setBrightness(hsb[2]);
 		gc.setEffect(effect);
-		gc.drawImage(c.getCarriageImage(), c.getPosition().getX(), c.getPosition().getY());
+		
+		transformContext(c);
+		gc.drawImage(c.getCarriageImage(), c.getPosition().getX(), c.getPosition().getY(), c.getW(), c.getH());
+		System.out.printf("Drew image %s at %.2f:%.2f with %f width and %f height\n", c.getCarriageImage().getUrl(), c.getPosition().getX(), c.getPosition().getY(), c.getW(), c.getH());
+		gc.restore();
 	}
 	
 	public void clear() {
 		gc.setEffect(null);
 	}
+	
+	private void transformContext(Carriage c){
+        Point2D centre = c.getCenter();
+        Rotate r = new Rotate(c.getRotation(), centre.getX(), centre.getY());
+        gc.setTransform(r.getMxx(), r.getMyx(), r.getMxy(), r.getMyy(), r.getTx(), r.getTy());
+    }
 	
 }

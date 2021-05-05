@@ -12,19 +12,22 @@ import javafx.scene.paint.Color;
 public class Carriage implements IDrawable {
 	public static final int DEF_MAX_GOODS = 6;
 
-	private Point2D position;
+	private Color c;
+	private Point2D pos;
 	private Image carriageImage;
 	private ArrayList<Shape> goods;
 	private float rotation;
-	private Color c;
+	private double w;
+	private double h;
 	
 	private int maxGoods = DEF_MAX_GOODS;
 	
-	public Carriage(Color c, Point2D position, Image carriageImage, float rotation) {
+	public Carriage(Color c, Point2D position, Image carriageImage, double w, double h, float rotation) {
 		this.c = c;
-		this.position = position;
+		this.pos = position;
 		this.carriageImage = carriageImage;
-		carriageImage.
+		this.w = w;
+		this.h = h;
 		this.rotation = rotation;
 	}
 	
@@ -46,7 +49,7 @@ public class Carriage implements IDrawable {
 	}
 	
 	public void updatePos(Point2D pos) {
-		position = pos;
+		this.pos = pos;
 	}
 	
 	public void setRotation (float rotation) {
@@ -62,7 +65,7 @@ public class Carriage implements IDrawable {
 	 * @return the position
 	 */
 	public Point2D getPosition() {
-		return position;
+		return pos;
 	}
 
 	/**
@@ -85,6 +88,16 @@ public class Carriage implements IDrawable {
 	public Color getC() {
 		return c;
 	}
-	
-	
+
+	public Point2D getCenter() {
+		return new Point2D(pos.getX() + w / 2, pos.getY() + h / 2);
+	}
+
+	public double getW() {
+		return w;
+	}
+
+	public double getH() {
+		return h;
+	}
 }
