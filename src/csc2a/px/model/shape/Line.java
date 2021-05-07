@@ -1,5 +1,7 @@
 package csc2a.px.model.shape;
 
+import java.util.Arrays;
+
 import csc2a.px.model.visitor.IDrawVisitor;
 import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
@@ -7,38 +9,34 @@ import javafx.scene.paint.Color;
 public class Line extends Polygon {
 	private boolean hasGuardPost = false;
 	private Color bridgeColor = Color.BROWN;
-	private double[] bridgeXCoords = null;
-	private double[] bridgeYCoords = null;
+	private Point2D[] bridge;
 	private Point2D dest;
 	
 	public Line(Color c, Point2D start, Point2D dest) {
 		super(c, ESHAPE_TYPE.LINE, start);
-		xCoords = new double[3];
-		yCoords = new double[3];
 		this.dest = dest;
 		calcCoords();
 	}
 	
-	public Line(Color c, Point2D start, Point2D dest, double[] bridgeXCoords, double[] bridgeYCoords) {
-		super(c, ESHAPE_TYPE.LINE, start);
-		xCoords = new double[3];
-		yCoords = new double[3];
-		this.bridgeXCoords = bridgeXCoords;
-		this.bridgeYCoords = bridgeYCoords;
-		calcCoords();
+	public Line(Color c, Point2D start, Point2D dest, Point2D[] bridge) {
+		this(c, start, dest);
+		this.bridge = bridge;		
 	}
 	
 	public void addGuardPost() { hasGuardPost = true; }
 	
 	@Override
 	protected void calcCoords() {
-		xCoords[0] = refPos.getX();
-		yCoords[0] = refPos.getY();
-		xCoords[2] = dest.getX();
-		yCoords[2] = dest.getY();
-		//TODO calculate midpoint
-		xCoords[1] = xCoords[0];
-		yCoords[1] = yCoords[0];
+		if(pos.equals(calcMidpoint(pos, dest))) {
+			coords = new Point2D[2];
+			coords[0] = pos;
+			coords[1] = dest;
+		} else {
+			coords = new Point2D[3];
+			coords[0] = pos;
+			coords[1] = calcMidpoint(pos, dest);
+			coords[2] = dest;
+		}
 	}
 
 	@Override
@@ -46,16 +44,43 @@ public class Line extends Polygon {
 		v.visit(this);
 	}
 	
-	public void addBridge(double[] bridgeXCoords, double[] bridgeYCoords) { 
-		this.bridgeXCoords = bridgeXCoords; 
-		this.bridgeYCoords = bridgeYCoords;
+	public void addBridge(Point2D[] bridge) { 
+		this.bridge = bridge;
+	}
+	
+	public static Point2D calcMidpoint(Point2D start, Point2D dest) {
+		//TODO calc midpoint
+		double angle = Math.atan((dest.getY() - start.getY())/(dest.getX() - dest.getY())) * 180/Math.PI;
+		// Checks if line is already in ideal state
+		if (Arrays.asList(0.0, 45.0, -45.0, Double.NaN).contains(angle)) {
+			return start;
+		}
+		// Check whether x or y are the farthest away
+		Point2D diff = dest.subtract(start);
+		Point2D midpoint;
+		if(Math.abs(diff.getX()) > Math.abs(diff.getY())) {	// m = (ydiff)/(xdiff)
+			double x;			
+			if(diff.getY() == Math.abs(diff.getY()))
+				x = (dest.getX() - diff.getY()); // m = 1; x = destX - diffY
+			else
+				x = (dest.getX() + diff.getY()); // m = -1; x = destX + diffY
+			midpoint = new Point2D(x, start.getY());
+		} else {
+			double y;			
+			if(diff.getX() == Math.abs(diff.getX()))
+				y = (dest.getY() - diff.getX()); // m = 1; y = destY - diffX
+			else
+				y = (dest.getY() + diff.getX()); // m = -1; x = destY + diffX
+			midpoint = new Point2D(start.getX(), y);
+		}		
+		return midpoint;
 	}
 	
 	public void setDest(Point2D dest) { this.dest = dest; }
 	public Point2D getDest() { return dest; }
+	public Point2D getMid() { return (coords.length > 2) ? coords[1] : pos; }
 	
-	public double[] getBridgeXCoords() { return bridgeXCoords; }
-	public double[] getBridgeYCoords() { return bridgeYCoords; }
+	public Point2D[] getBridge() { return bridge; }
 	public Color getBridgeColor() { return bridgeColor; }
 	public boolean hasGuardPost() { return hasGuardPost; }
 

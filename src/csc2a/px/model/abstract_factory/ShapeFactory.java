@@ -16,9 +16,8 @@ public class ShapeFactory implements AbstractFactory<Shape> {
 	}
 
 	@Override
-	public Shape createLine(Color c,  Point2D start, Point2D dest, double[] bridgeXCoords,
-			double[] bridgeYCoords) {
-		return new Line(c, start, dest, bridgeXCoords, bridgeYCoords);
+	public Shape createLine(Color c,  Point2D start, Point2D dest, Point2D[] bridge) {
+		return new Line(c, start, dest, bridge);
 	}
 
 	@Override

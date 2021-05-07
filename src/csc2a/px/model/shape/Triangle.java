@@ -11,20 +11,15 @@ public class Triangle extends Polygon {
 		super(c, ESHAPE_TYPE.TRIANGLE, refPos);
 
 		this.size = size;
-		xCoords = new double[3];
-		yCoords = new double[3];
+		coords = new Point2D[3];
 		calcCoords();
 	}
 
 	@Override
 	protected void calcCoords() {
-		xCoords[0] = refPos.getX();
-		yCoords[0] = refPos.getY() - size/2;
-		xCoords[1] = xCoords[0] - size/2;
-		yCoords[1] = yCoords[0] + size;
-		
-		xCoords[2] = xCoords[0] + size/2;
-		yCoords[2] = yCoords[1];
+		coords[0] = new Point2D(pos.getX(), pos.getY() - size/2);
+		coords[1] = new Point2D(pos.getX() - size/2, pos.getY() + size/2);		
+		coords[2] = new Point2D(pos.getX() + size/2, coords[1].getY());
 	}
 
 	@Override

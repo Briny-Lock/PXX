@@ -12,7 +12,7 @@ public class Wagon {
 	private static final int DEF_MAX_CARRIAGES = 4;
 	private static final int DEF_SLOW_DIST = 10;
 	private static final float MIN_SPEED = 0.2f;
-	private static final float MAX_SPEED = 5f;
+	private static final float MAX_SPEED = 70f;
 	private static final double DEF_ACCELERATION = 0.15;
 	private static final double DEF_CARR_GAP = 3;
 	
@@ -22,6 +22,7 @@ public class Wagon {
 	private ArrayList<Carriage> carriages;
 	private int maxCarriages = DEF_MAX_CARRIAGES;
 	private float rotation;
+	private boolean isForward = true;
 	
 	private Color c;
 	private Image carriageImage;
@@ -62,7 +63,7 @@ public class Wagon {
 			return false;
 	}
 	
-	public Shape deliverGoods(Shape goods) {
+	public Shape deliverGoods(ArrayList<Shape> goods) {
 		for (Carriage carriage : carriages) {
 			Shape deliveredGoods = carriage.deliverGoods(goods);
 			if (deliveredGoods != null)
@@ -74,7 +75,7 @@ public class Wagon {
 	public void move(float deltaTime) {
 		//System.out.printf("%f : (%f,%f) at speed: %.5f\n", deltaTime, pos.getX(), pos.getY(), speed);
 		// deltaTime is used to run independently from frame rate
-		if (Math.abs(dest.getX() - pos.getX()) < 0.5 && Math.abs(dest.getY() - pos.getY()) < 0.5) {
+		if (Math.abs(dest.getX() - pos.getX()) < 1 && Math.abs(dest.getY() - pos.getY()) < 1) {
 			pos = dest;
 			return;
 		}
@@ -111,7 +112,7 @@ public class Wagon {
 //		}
 		Point2D motionVector = new Point2D(0, 0);
 		if(deltaTime < 10)
-			motionVector = new Point2D((float) (Math.cos(Math.toRadians(-rotation)) * deltaTime * 20), (float) (Math.sin(Math.toRadians(rotation)) * deltaTime * 20));
+			motionVector = new Point2D((float) (Math.cos(Math.toRadians(-rotation)) * deltaTime * speed), (float) (Math.sin(Math.toRadians(rotation)) * deltaTime * speed));
 		//System.out.println(motionVector.getX() + ":" + motionVector.getY());
 		pos = pos.add(motionVector);
 		
@@ -141,8 +142,6 @@ public class Wagon {
 		} else {
 			rotation = (float) (tempRot * 180/Math.PI);
 		}
-		System.out.println("Rotation: " + rotation);
-		//System.out.println(pos.getX() + ":" + pos.getY() + " vs. " + dest.getX() + ":" + dest.getY() + " at rotation: " + rotation);
 		for (Carriage carriage : carriages) {
 			carriage.setRotation(rotation);
 		}
@@ -150,9 +149,14 @@ public class Wagon {
 		speed = MAX_SPEED;
 	}
 	
-	public void drawCarriages(IDrawVisitor v, boolean hasFill) {
+	public void drawCarriages(IDrawVisitor v) {
 		for (Carriage carriage : carriages) {
-			carriage.draw(v, hasFill);
+			carriage.draw(v, true);
 		}
 	}
+	
+	public Point2D getPos() { return pos; }
+	public Point2D getDest() { return dest; }
+	public void setForward(boolean isForward) { this.isForward = isForward; }
+	public boolean isForward() { return isForward; }
 }

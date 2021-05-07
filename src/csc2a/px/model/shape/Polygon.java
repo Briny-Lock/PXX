@@ -4,9 +4,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 
 public abstract class Polygon extends Shape {
-	protected Point2D refPos;
-	protected double[] xCoords;
-	protected double[] yCoords;	
+	protected Point2D[] coords;	
 
 	public Polygon(Color c, ESHAPE_TYPE type, Point2D refPos) {
 		super(c, type, refPos);
@@ -19,6 +17,10 @@ public abstract class Polygon extends Shape {
 	 * @return the xCoords
 	 */
 	public double[] getxCoords() {
+		double[] xCoords = new double[coords.length];
+		for (int i = 0; i < coords.length; i++) {
+			xCoords[i] = coords[i].getX();			
+		}
 		return xCoords;
 	}
 
@@ -26,13 +28,14 @@ public abstract class Polygon extends Shape {
 	 * @return the yCoords
 	 */
 	public double[] getyCoords() {
+		double[] yCoords = new double[coords.length];
+		for (int i = 0; i < coords.length; i++) {
+			yCoords[i] = coords[i].getY();			
+		}
 		return yCoords;
 	}
 	
-	public Point2D getPos() { return refPos; }
-	
-	public void setPos(Point2D pos) { 
-		refPos = pos;
-		calcCoords();
+	public Point2D[] getCoords() {
+		return coords;
 	}
 }

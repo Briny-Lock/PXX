@@ -19,4 +19,5 @@ public class Circle extends Shape {
 	}
 
 	public double getR() { return r; }
+	public Point2D getRefPos() { return new Point2D(pos.getX() - r, pos.getY() - r); }
 }

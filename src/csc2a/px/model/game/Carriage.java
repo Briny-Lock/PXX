@@ -21,6 +21,7 @@ public class Carriage implements IDrawable {
 	private double h;
 	
 	private int maxGoods = DEF_MAX_GOODS;
+	private static final float DEF_GOODS_SPACE = 5f;
 	
 	public Carriage(Color c, Point2D position, Image carriageImage, double w, double h, float rotation) {
 		this.c = c;
@@ -29,23 +30,39 @@ public class Carriage implements IDrawable {
 		this.w = w;
 		this.h = h;
 		this.rotation = rotation;
+		this.goods = new ArrayList<>();
 	}
 	
 	public boolean addGoods(Shape goods) {
 		if (this.goods.size() < maxGoods) {
 			this.goods.add(goods);
+			renderGoods();
 			return true;
 		} else {
 			return false;
 		}
 	}
 	
-	public Shape deliverGoods(Shape goods) {
+	public Shape deliverGoods(ArrayList<Shape> goods) {
 		for (Shape g : this.goods) {
-			if (g.getType() == goods.getType())
-				return g;
+			for (Shape wanted : goods) {
+				if (g.getType() == wanted.getType()) {
+					renderGoods();
+					goods.remove(g);
+					return g;				
+				}
+			}			
 		}
 		return null;
+	}
+	
+	private void renderGoods() {
+		Point2D prevPos = pos.add(w, 0);
+		for (int i = 0; i < goods.size(); i++) {
+			goods.get(i).setPos(prevPos.add(DEF_GOODS_SPACE, 0));
+			prevPos = goods.get(i).getPos();
+			goods.get(i).setC(Color.GRAY);
+		}
 	}
 	
 	public void updatePos(Point2D pos) {
@@ -58,6 +75,9 @@ public class Carriage implements IDrawable {
 	
 	@Override
 	public void draw(IDrawVisitor v, boolean hasFill) {
+		for (Shape g : goods) {
+			g.draw(v, hasFill);
+		}
 		v.visit(this);
 	}
 

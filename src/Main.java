@@ -1,6 +1,9 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import csc2a.px.model.game.GameLoop;
+import csc2a.px.model.game.Route;
+import csc2a.px.model.game.Town;
 import csc2a.px.model.game.Wagon;
 import csc2a.px.model.shape.Circle;
 import csc2a.px.model.shape.Line;
@@ -14,6 +17,8 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -28,18 +33,24 @@ public class Main extends Application{
 	public void start(Stage primaryStage) throws Exception {
 		GameCanvas canvas = new GameCanvas();
 		Group root = new Group();
+		BorderPane pane = new BorderPane();
+		pane.setCenter(canvas);
 		root.getChildren().add(canvas);
 		Scene scene = new Scene(root, 500, 500);
 		scene.setFill(Color.web("#2f2f2f"));
-			
+		
+		
 		primaryStage.setScene(scene);
 		primaryStage.show();
 		
-		Image carriageImage = new Image(getClass().getResourceAsStream(("assets/carriage.png")));
+		Image carriageImage = new Image(getClass().getResourceAsStream(("assets/carriageblack.png")));
+		canvas.setImage(carriageImage);
 		
 		Wagon wagon = new Wagon(Color.ORANGE, new Point2D(1, 250), 10, 20, carriageImage);
 		wagon.setDest(new Point2D(500, 250));
 		canvas.addWagon(wagon);
+		
+		
 		
 		GameLoop loop = new GameLoop() {
 			

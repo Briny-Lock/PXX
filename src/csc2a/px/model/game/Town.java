@@ -2,6 +2,7 @@ package csc2a.px.model.game;
 
 import java.util.ArrayList;
 
+import csc2a.px.model.shape.ESHAPE_TYPE;
 import csc2a.px.model.shape.Shape;
 import csc2a.px.model.visitor.IDrawVisitor;
 import javafx.geometry.Point2D;
@@ -10,6 +11,7 @@ import javafx.scene.paint.Color;
 public class Town {
 	private static final float DEF_GOODS_SPACE = 5f;
 	private static final int DEF_MAX_GOODS = 7;
+	private static final int DEF_TOWN_SIZE = 20;
 	
 	private Point2D pos;
 	private Shape shape;
@@ -23,29 +25,36 @@ public class Town {
 		wantedGoods = new ArrayList<>();
 	}
 	
-	public void addGoods(Shape goods) {
+	public boolean addGoods(Shape goods) {
+		if (goods.getType() == this.shape.getType())
+			return true;
 		storedGoods.add(goods);
 		renderGoods();
-	}
-	
-	public boolean removeGoods(Shape goods) {
-		for (Shape g : storedGoods) {
-			if (g.getType() == goods.getType()) {
-				storedGoods.remove(g);
-				renderGoods();
-				return true;
-			}
-		}
 		return false;
 	}
 	
+	public Shape removeGoods(ArrayList<ESHAPE_TYPE> types) {
+		for (Shape g : storedGoods) {
+			for (ESHAPE_TYPE type : types) {
+				if (g.getType() == type) {
+					storedGoods.remove(g);
+					renderGoods();
+					return g;
+				}				
+			}
+		}
+		return null;
+	}
+	
 	private void renderGoods() {
-		Point2D prevPos = pos;
+		Point2D prevPos = pos.add(DEF_TOWN_SIZE, 0);
 		for (int i = 0; i < storedGoods.size(); i++) {
 			storedGoods.get(i).setPos(prevPos.add(DEF_GOODS_SPACE, 0));
 			prevPos = storedGoods.get(i).getPos();
 			if (i > DEF_MAX_GOODS) {
 				storedGoods.get(i).setC(Color.RED);
+			} else {
+				storedGoods.get(i).setC(Color.GRAY);
 			}
 		}
 	}

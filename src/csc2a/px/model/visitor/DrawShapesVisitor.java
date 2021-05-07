@@ -28,17 +28,18 @@ public class DrawShapesVisitor implements IDrawVisitor {
 		clear();
 		gc.setStroke(l.getC());
 		gc.setLineWidth(5);
-		gc.strokeLine(l.getxCoords()[0], l.getyCoords()[0], l.getxCoords()[1], l.getyCoords()[1]);
-		gc.strokeLine(l.getxCoords()[1], l.getyCoords()[1], l.getxCoords()[2], l.getyCoords()[2]);
 		
-		if (l.getBridgeXCoords() != null && l.getBridgeYCoords() != null && l.getBridgeXCoords().length == l.getBridgeYCoords().length) {
-			gc.setStroke(l.getBridgeColor());
-			gc.setLineWidth(7);
-			for (int i = 1; i < l.getBridgeXCoords().length; i++) {
-				gc.strokeLine(l.getBridgeXCoords()[i - 1], l.getBridgeYCoords()[i - 1], l.getBridgeXCoords()[i], l.getBridgeYCoords()[i]);
-			}
+		for (int i = 1; i < l.getxCoords().length; i++) {
+			gc.strokeLine(l.getxCoords()[i - 1], l.getyCoords()[i - 1], l.getxCoords()[i], l.getyCoords()[i]);
 		}
 		
+		if (l.getBridge() != null) {
+			gc.setStroke(l.getBridgeColor());
+			gc.setLineWidth(7);
+			for (int i = 1; i < l.getBridge().length; i++) {
+				gc.strokeLine(l.getBridge()[i - 1].getX(), l.getBridge()[i - 1].getY(), l.getBridge()[i].getX(), l.getBridge()[i].getY());
+			}
+		}
 		
 		gc.stroke();
 	}
@@ -49,10 +50,10 @@ public class DrawShapesVisitor implements IDrawVisitor {
 		gc.setLineWidth(3);
 		if (hasFill) {
 			gc.setFill(c.getC());
-			gc.fillOval(c.getPos().getX(), c.getPos().getY(), c.getR() * 2, c.getR() * 2);
+			gc.fillOval(c.getRefPos().getX(), c.getRefPos().getY(), c.getR() * 2, c.getR() * 2);
 		} else {
 			gc.setStroke(c.getC());
-			gc.strokeOval(c.getPos().getX(), c.getPos().getY(), c.getR() * 2, c.getR() * 2);
+			gc.strokeOval(c.getRefPos().getX(), c.getRefPos().getY(), c.getR() * 2, c.getR() * 2);
 		}
 	}
 
@@ -87,7 +88,6 @@ public class DrawShapesVisitor implements IDrawVisitor {
 		gc.save();
 		float[] hsb = new float[3];
 		Color.RGBtoHSB((int) (c.getC().getRed() * 255), (int) (c.getC().getGreen() * 255), (int) (c.getC().getBlue() * 255), hsb);
-//		System.out.printf("RGB: %d:%d:%d vs. HSB: %f:%f:%f\n", (int) (c.getC().getRed() * 255), (int) (c.getC().getGreen() * 255), (int) (c.getC().getBlue() * 255), (hsb[0]), (hsb[1]), (hsb[2]));
 		ColorAdjust effect = new ColorAdjust();
 		effect.setHue(hsb[0]);
 		effect.setSaturation(hsb[1]);
