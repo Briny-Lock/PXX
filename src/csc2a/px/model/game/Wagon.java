@@ -2,6 +2,7 @@ package csc2a.px.model.game;
 
 import java.util.ArrayList;
 
+import csc2a.px.model.shape.ESHAPE_TYPE;
 import csc2a.px.model.shape.Shape;
 import csc2a.px.model.visitor.IDrawVisitor;
 import javafx.geometry.Point2D;
@@ -12,7 +13,7 @@ public class Wagon {
 	private static final int DEF_MAX_CARRIAGES = 4;
 	private static final int DEF_SLOW_DIST = 10;
 	private static final float MIN_SPEED = 0.2f;
-	private static final float MAX_SPEED = 70f;
+	private static final float MAX_SPEED = 50f;
 	private static final double DEF_ACCELERATION = 0.15;
 	private static final double DEF_CARR_GAP = 3;
 	
@@ -37,6 +38,7 @@ public class Wagon {
 	public Wagon(Color c, Point2D position , double carrW, double carrH, Image carriageImage) {
 		this.c = c;
 		this.pos = position;
+		this.dest = this.pos;
 		this.carrW = carrW;
 		this.carrH = carrH;
 		this.carriageImage = carriageImage;
@@ -63,7 +65,7 @@ public class Wagon {
 			return false;
 	}
 	
-	public Shape deliverGoods(ArrayList<Shape> goods) {
+	public Shape deliverGoods(ArrayList<ESHAPE_TYPE> goods) {
 		for (Carriage carriage : carriages) {
 			Shape deliveredGoods = carriage.deliverGoods(goods);
 			if (deliveredGoods != null)
@@ -75,7 +77,7 @@ public class Wagon {
 	public void move(float deltaTime) {
 		//System.out.printf("%f : (%f,%f) at speed: %.5f\n", deltaTime, pos.getX(), pos.getY(), speed);
 		// deltaTime is used to run independently from frame rate
-		if (Math.abs(dest.getX() - pos.getX()) < 1 && Math.abs(dest.getY() - pos.getY()) < 1) {
+		if ((Math.abs(dest.getX() - pos.getX()) < 1 && Math.abs(dest.getY() - pos.getY()) < 1)) {
 			pos = dest;
 			return;
 		}
@@ -114,7 +116,10 @@ public class Wagon {
 		if(deltaTime < 10)
 			motionVector = new Point2D((float) (Math.cos(Math.toRadians(-rotation)) * deltaTime * speed), (float) (Math.sin(Math.toRadians(rotation)) * deltaTime * speed));
 		//System.out.println(motionVector.getX() + ":" + motionVector.getY());
-		pos = pos.add(motionVector);
+		if ((dest.getX() >= pos.getX() || dest.getY() > pos.getY()))
+			pos = pos.add(motionVector);
+		else
+			pos = pos.subtract(motionVector);
 		
 		renderCarriages();
 	}
@@ -127,7 +132,10 @@ public class Wagon {
 
 		carriages.get(0).updatePos(pos);
 		for (int i = 1; i < carriages.size(); i++) {
-			carriages.get(i).updatePos(carriages.get(i - 1).getPosition().add(xShift, yShift));
+			if (isForward)
+				carriages.get(i).updatePos(carriages.get(i - 1).getPos().add(xShift, yShift));
+			else
+				carriages.get(i).updatePos(carriages.get(i - 1).getPos().subtract(xShift, yShift));
 		}
 	}
 	

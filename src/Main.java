@@ -46,17 +46,11 @@ public class Main extends Application{
 		Image carriageImage = new Image(getClass().getResourceAsStream(("assets/carriageblack.png")));
 		canvas.setImage(carriageImage);
 		
-		Wagon wagon = new Wagon(Color.ORANGE, new Point2D(1, 250), 10, 20, carriageImage);
-		wagon.setDest(new Point2D(500, 250));
-		canvas.addWagon(wagon);
-		
-		
-		
 		GameLoop loop = new GameLoop() {
 			
 			@Override
 			public void tick(float deltaTime) {
-				canvas.redrawCanvas(deltaTime);				
+				canvas.redrawCanvas(deltaTime);
 			}
 		};
 		

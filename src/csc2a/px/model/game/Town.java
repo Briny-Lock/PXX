@@ -1,6 +1,7 @@
 package csc2a.px.model.game;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import csc2a.px.model.shape.ESHAPE_TYPE;
 import csc2a.px.model.shape.Shape;
@@ -9,28 +10,44 @@ import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 
 public class Town {
-	private static final float DEF_GOODS_SPACE = 5f;
+	private static final float DEF_GOODS_SPACE = 3f;
 	private static final int DEF_MAX_GOODS = 7;
 	private static final int DEF_TOWN_SIZE = 20;
+	private static final int TICKS_TO_GOODS = 200;
 	
 	private Point2D pos;
 	private Shape shape;
+	private int goodsCounter;
 	private ArrayList<Shape> storedGoods;
-	private ArrayList<Shape> wantedGoods;
+	private ArrayList<ESHAPE_TYPE> wantedGoods;
 	
 	public Town(Shape shape) {
+		this.goodsCounter = 0;
 		this.shape = shape;
 		this.pos = shape.getPos();
 		storedGoods = new ArrayList<>();
 		wantedGoods = new ArrayList<>();
+		wantedGoods.add(shape.getType());
 	}
 	
 	public boolean addGoods(Shape goods) {
-		if (goods.getType() == this.shape.getType())
+		if (goods.getType() == this.shape.getType()) {
+			System.out.println("Delivered goods");
 			return true;
+		}
 		storedGoods.add(goods);
 		renderGoods();
 		return false;
+	}
+	
+	public boolean generateGoods() {
+		if (goodsCounter >= TICKS_TO_GOODS) {
+			goodsCounter = 0;
+			return true;
+		} else {
+			goodsCounter++;
+			return false;
+		}
 	}
 	
 	public Shape removeGoods(ArrayList<ESHAPE_TYPE> types) {
@@ -39,8 +56,9 @@ public class Town {
 				if (g.getType() == type) {
 					storedGoods.remove(g);
 					renderGoods();
+					System.out.println("Removed Goods");
 					return g;
-				}				
+				}
 			}
 		}
 		return null;
@@ -65,16 +83,16 @@ public class Town {
 	}
 	
 	public void drawTown(IDrawVisitor v) {
-		shape.draw(v, false);		
+		shape.draw(v, true);		
 	}
 	
 	public void drawGoods(IDrawVisitor v) {
 		for (Shape shape : storedGoods) {
-			shape.draw(v, true);
+			shape.draw(v, false);
 		}
 	}
 	
-	public ArrayList<Shape> getWantedGoods() { return wantedGoods; }
+	public ArrayList<ESHAPE_TYPE> getWantedGoods() { return wantedGoods; }
 	public Point2D getPos() { return pos; }
 	public Shape getShape() { return shape; }
 	

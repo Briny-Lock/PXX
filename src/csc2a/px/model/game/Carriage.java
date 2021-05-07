@@ -2,6 +2,7 @@ package csc2a.px.model.game;
 
 import java.util.ArrayList;
 
+import csc2a.px.model.shape.ESHAPE_TYPE;
 import csc2a.px.model.shape.Shape;
 import csc2a.px.model.visitor.IDrawVisitor;
 import csc2a.px.model.visitor.IDrawable;
@@ -21,7 +22,7 @@ public class Carriage implements IDrawable {
 	private double h;
 	
 	private int maxGoods = DEF_MAX_GOODS;
-	private static final float DEF_GOODS_SPACE = 5f;
+	private static final float DEF_GOODS_SPACE = 2f;
 	
 	public Carriage(Color c, Point2D position, Image carriageImage, double w, double h, float rotation) {
 		this.c = c;
@@ -43,13 +44,13 @@ public class Carriage implements IDrawable {
 		}
 	}
 	
-	public Shape deliverGoods(ArrayList<Shape> goods) {
+	public Shape deliverGoods(ArrayList<ESHAPE_TYPE> goods) {
 		for (Shape g : this.goods) {
-			for (Shape wanted : goods) {
-				if (g.getType() == wanted.getType()) {
+			for (ESHAPE_TYPE wanted : goods) {
+				if (g.getType() == wanted) {
 					renderGoods();
-					goods.remove(g);
-					return g;				
+					this.goods.remove(g);
+					return g;
 				}
 			}			
 		}
@@ -57,7 +58,7 @@ public class Carriage implements IDrawable {
 	}
 	
 	private void renderGoods() {
-		Point2D prevPos = pos.add(w, 0);
+		Point2D prevPos = pos.add(2, 0);
 		for (int i = 0; i < goods.size(); i++) {
 			goods.get(i).setPos(prevPos.add(DEF_GOODS_SPACE, 0));
 			prevPos = goods.get(i).getPos();
@@ -81,11 +82,20 @@ public class Carriage implements IDrawable {
 		v.visit(this);
 	}
 
+	public Point2D getPos() {
+		return pos;
+	}
+	
 	/**
 	 * @return the position
 	 */
-	public Point2D getPosition() {
+	public Point2D getRefPos() {
 		return pos;
+//		if (rotation < 45) {
+//			return pos.add(-w/2, h/2);
+//		} else {
+//			return pos.add(-h/2, h/2);
+//		}
 	}
 
 	/**

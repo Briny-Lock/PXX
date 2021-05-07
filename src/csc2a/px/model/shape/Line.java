@@ -49,30 +49,39 @@ public class Line extends Polygon {
 	}
 	
 	public static Point2D calcMidpoint(Point2D start, Point2D dest) {
+		// Smallest Y up top
+		if (dest.getY() < start.getY()) {
+			Point2D temp = start;
+			start = dest;
+			dest = temp;
+		}
 		//TODO calc midpoint
 		double angle = Math.atan((dest.getY() - start.getY())/(dest.getX() - dest.getY())) * 180/Math.PI;
 		// Checks if line is already in ideal state
-		if (Arrays.asList(0.0, 45.0, -45.0, Double.NaN).contains(angle)) {
+		if (Arrays.asList(0.0, 45.0, -45.0, Double.NaN, 90, -90).contains(angle)) {
 			return start;
 		}
+		
 		// Check whether x or y are the farthest away
 		Point2D diff = dest.subtract(start);
 		Point2D midpoint;
 		if(Math.abs(diff.getX()) > Math.abs(diff.getY())) {	// m = (ydiff)/(xdiff)
 			double x;			
-			if(diff.getY() == Math.abs(diff.getY()))
+			if(diff.getY() == Math.abs(diff.getY())) {
 				x = (dest.getX() - diff.getY()); // m = 1; x = destX - diffY
-			else
+			} else {
 				x = (dest.getX() + diff.getY()); // m = -1; x = destX + diffY
+			}
 			midpoint = new Point2D(x, start.getY());
 		} else {
 			double y;			
-			if(diff.getX() == Math.abs(diff.getX()))
+			if(diff.getX() == Math.abs(diff.getX())) {
 				y = (dest.getY() - diff.getX()); // m = 1; y = destY - diffX
-			else
+			} else {
 				y = (dest.getY() + diff.getX()); // m = -1; x = destY + diffX
+			}
 			midpoint = new Point2D(start.getX(), y);
-		}		
+		}
 		return midpoint;
 	}
 	

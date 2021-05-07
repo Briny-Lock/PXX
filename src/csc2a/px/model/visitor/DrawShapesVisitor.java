@@ -95,7 +95,7 @@ public class DrawShapesVisitor implements IDrawVisitor {
 		gc.setEffect(effect);
 		
 		transformContext(c);
-		gc.drawImage(c.getCarriageImage(), c.getPosition().getX(), c.getPosition().getY(), c.getW(), c.getH());
+		gc.drawImage(c.getCarriageImage(), c.getRefPos().getX(), c.getRefPos().getY(), c.getW(), c.getH());
 		gc.restore();
 	}
 	

@@ -27,4 +27,5 @@ public class Triangle extends Polygon {
 		v.visit(this, hasFill);
 	}
 
+	public double getSize() { return size; }
 }

@@ -107,7 +107,6 @@ public class Route {
 	}
 	
 	public void renderLines() {
-		System.out.println("Rendering lines in " + String.valueOf(c));
 		lines.clear();
 		if (towns.size() > 1) {
 			for (int i = 1; i < towns.size(); i++) {
@@ -125,16 +124,15 @@ public class Route {
 	
 	private boolean bridgeOnLine(Line line, Point2D[] bridge) {
 		// true if bridge exists on the line, false if not
-		if(bridge.length > 2) {
+		if(bridge.length > 2)
 			if (!(line.getPos().angle(line.getMid()) == bridge[0].angle(bridge[1]) 
 					&& line.getMid().angle(line.getDest()) == bridge[1].angle(bridge[2])))
 				return false;
-		}
-		else {
-			if (!(line.getPos().angle(line.getMid()) == bridge[0].angle(bridge[1]) 
-					|| line.getMid().angle(line.getDest()) == bridge[0].angle(bridge[1])))
-				return false;
-		}
+			else {
+				if (!(line.getPos().angle(line.getMid()) == bridge[0].angle(bridge[1]) 
+						|| line.getMid().angle(line.getDest()) == bridge[0].angle(bridge[1])))
+					return false;
+			}
 
 		for (Point2D p : bridge) {
 			boolean onLine = false;
@@ -156,8 +154,7 @@ public class Route {
 			double c = a;
 			a = b;
 			b = c;
-		}
-		
+		}		
 		return (value > a && value < b);
 	}
 	
@@ -170,10 +167,12 @@ public class Route {
 		}
 	}
 	
-	public boolean addWagon(Point2D pos) {
+	public boolean addWagon() {
 		if (wagons.size() >= MAX_WAGONS)
 			return false;
-		wagons.add(new Wagon(c, pos, carrW, carrH, carriageImage));
+		if (towns.size() < 1)
+			return false;
+		wagons.add(new Wagon(c, towns.get(0).getPos(), carrW, carrH, carriageImage));
 		return true;
 	}
 	
@@ -198,25 +197,47 @@ public class Route {
 		for (int i = 0; i < towns.size(); i++) {
 			Town t = towns.get(i);
 			if (t.getPos().equals(wagon.getPos())) {
+				if (wagon.isForward()) {
+					if (t == towns.get(towns.size() - 1))
+						wagon.setForward(false);
+				} else {
+					if (t == towns.get(0))
+						wagon.setForward(true);
+				}
 				Shape goods = wagon.deliverGoods(t.getWantedGoods());
 				if (goods == null) {
 					ArrayList<ESHAPE_TYPE> predictedGoods;
-					if (wagon.isForward()) {						
+					if (wagon.isForward()) {
 						predictedGoods = predictGoods(towns.subList(i, towns.size()));
 					} else {						
-						predictedGoods = predictGoods(towns.subList(0, i));						
+						predictedGoods = predictGoods(towns.subList(0, i));
 					}
 					Shape toGo = t.removeGoods(predictedGoods);
-					if (toGo == null)
-						wagon.setDest(towns.get(i + 1).getPos());
-					else
+					if (toGo == null) {
+						if (wagon.isForward())
+							wagon.setDest(lines.get(i).getCoords()[1]);
+						else
+							wagon.setDest(lines.get(i - 1).getMid());	
+					} else
 						wagon.addGoods(toGo);
 				}
 				else {
 					if (t.addGoods(goods))
 						coin += coinPerDelivery;
 				}
-			}				
+				return;
+			}
+		}
+		
+		// Wagon at midpoint of a line
+		for (Line l : lines) {
+			if (l.getMid().equals(wagon.getPos())) {
+				if (wagon.isForward())
+					wagon.setDest(l.getDest());
+				else
+					wagon.setDest(l.getPos());
+				return;
+			}
 		}
 	}
 	
