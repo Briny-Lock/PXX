@@ -15,7 +15,7 @@ public class Map {
 	/**
 	 * 
 	 */
-	private static final int INIT_AREA_SIZE = 20;
+	private static final int INIT_AREA_SIZE = 70;
 	private static final float AREA_SHIFT = 0.2f;
 	
 	private Rectangle land;
@@ -32,27 +32,25 @@ public class Map {
 		this.riverC = riverC;
 		this.ww = ww;
 		this.wh = wh;
-		land = new Rectangle(landC, new Point2D(0, 0), ww, wh);
+		land = new Rectangle(landC, new Point2D(ww/2, wh/2), ww, wh);
 		rivers = new ArrayList<>();
 	};
 	
-	private void calcDrawable() {
+	public void calcDrawable(Point2D refPos) {
 		boolean isSafe = false;
-		Point2D centre = new Point2D(ww/2, wh/2);
-		drawable = new Point2D[4];
+		Point2D centre = refPos;
+		drawable = new Point2D[2];
 		while (!isSafe) {
 			if (!inRiver(centre)) {
+				drawable[0] = centre.subtract(INIT_AREA_SIZE, INIT_AREA_SIZE); // Top Left
+				drawable[1] = centre.add(INIT_AREA_SIZE, INIT_AREA_SIZE); // Bottom Right
 				isSafe = true;
 			} else {
 				centre = centre.add(randPoint(-INIT_AREA_SIZE, INIT_AREA_SIZE));
+				centre = new Point2D((int) ((centre.getX() < 0) ? 0 : Math.min(ww - INIT_AREA_SIZE, centre.getX())), 
+						(int) ((centre.getY() < 0) ? 0 : Math.min(wh - INIT_AREA_SIZE, centre.getY())));
 			}
-		}
-		
-		drawable[0] = centre.subtract(INIT_AREA_SIZE, INIT_AREA_SIZE); // Top Left
-		drawable[1] = centre.add(-INIT_AREA_SIZE, INIT_AREA_SIZE); // Bottom Left
-		drawable[2] = centre.add(INIT_AREA_SIZE, INIT_AREA_SIZE); // Bottom Right
-		drawable[3] = centre.add(INIT_AREA_SIZE, -INIT_AREA_SIZE); // Top Right
-		
+		}		
 	}
 	
 	private Point2D randPoint(int min, int max) {
@@ -75,33 +73,36 @@ public class Map {
 	
 	public void updateDrawable() {
 		drawable[0] = drawable[0].subtract(AREA_SHIFT, AREA_SHIFT); // Top Left
-		drawable[1] = drawable[1].add(-AREA_SHIFT, AREA_SHIFT); // Bottom Left
-		drawable[2] = drawable[2].add(AREA_SHIFT, AREA_SHIFT); // Bottom Right
-		drawable[3] = drawable[3].add(AREA_SHIFT, -AREA_SHIFT); // Top Right
+		drawable[1] = drawable[1].add(AREA_SHIFT, AREA_SHIFT); // Bottom Right
 	}
 	
 	public Point2D[] getDrawable() { return drawable; }
 	
-	public void addRiver(Point2D[] river, double size, boolean isHorizontal) {
-		Point2D[] realRiver = new Point2D[river.length * 2];
-		if (isHorizontal) {
-			for (int i = 0; i < river.length; i++) {			
-				Point2D calc = river[i].add(0, size);
-				realRiver[i] = new Point2D(calc.getX(), Math.min(calc.getY(), wh));
-				calc = river[i].subtract(0, size);
-				realRiver[realRiver.length - i] = new Point2D(calc.getX(), Math.max(calc.getY(), 0));
-			} 
-		} else {
-			for (int i = 0; i < river.length; i++) {
-				Point2D calc = river[i].add(size, 0);
-				realRiver[i] = new Point2D(Math.min(calc.getX(), ww), calc.getY());
-				calc = river[i].subtract(size, 0);
-				realRiver[realRiver.length - i] = new Point2D(Math.max(calc.getX(), 0), calc.getY());
-			}
-		}
+	public void addRiver(ArrayList<Point2D> river, double size, boolean isHorizontal) {
+		Point2D[] realRiver = getRealRiver(river, size, isHorizontal, ww, wh);
 		rivers.add(new Polygon(riverC, ESHAPE_TYPE.POLYGON, realRiver[0]));
 		rivers.get(rivers.size() - 1).setCoords(realRiver);
-		calcDrawable();
+		calcDrawable(new Point2D(ww/2, wh/2));
+	}
+	
+	public static Point2D[] getRealRiver(ArrayList<Point2D> river, double size, boolean isHorizontal, double ww, double wh) {
+		Point2D[] realRiver = new Point2D[river.size() * 2];
+		if (isHorizontal) {
+			for (int i = 0; i < river.size(); i++) {			
+				Point2D calc = river.get(i).add(0, size);
+				realRiver[i] = new Point2D(calc.getX(), Math.min(calc.getY(), wh));
+				calc = river.get(i).subtract(0, size);
+				realRiver[realRiver.length - i - 1] = new Point2D(calc.getX(), Math.max(calc.getY(), 0));
+			} 
+		} else {
+			for (int i = 0; i < river.size(); i++) {
+				Point2D calc = river.get(i).add(size, 0);
+				realRiver[i] = new Point2D(Math.min(calc.getX(), ww), calc.getY());
+				calc = river.get(i).subtract(size, 0);
+				realRiver[realRiver.length - i - 1] = new Point2D(Math.max(calc.getX(), 0), calc.getY());
+			}
+		}
+		return realRiver;
 	}
 	
 	public void updateWH(double ww, double wh) {
@@ -118,13 +119,14 @@ public class Map {
 		}
 	}
 	
-	public void generateRandomMap(int count, int maxSegmentDist) {
-		rivers = new ArrayList<>();
+	public static ArrayList<Polygon> generateRandomRivers(Color riverC, int count, int maxSegmentDist, double ww, double wh, int size) {
+		ArrayList<Polygon> rivers = new ArrayList<>();
 		for (int i = 0; i < count; i++) {
 			ArrayList<Point2D> river = new ArrayList<>();
 			float rotation;
 			Random random = new Random();
-			if (random.nextInt() % 2 == 0) {
+			boolean isHorizontal = random.nextInt() % 2 == 0;
+			if (isHorizontal) {
 				// Horizontal
 				river.add(new Point2D(0, random.nextInt((int) wh + 1)));
 				boolean atEdge = false;
@@ -158,7 +160,7 @@ public class Map {
 							y = river.get(river.size() - 1).getY() - (river.get(river.size() - 1).getX() - x)/Math.tan(Math.toRadians(rotation));
 						atEdge = true;
 					}
-					river.add(new Point2D(x, y));
+					river.add(new Point2D((int) x, (int) y));
 				} while (!atEdge);
 			} else {
 				// Vertical
@@ -194,14 +196,16 @@ public class Map {
 							x = river.get(river.size() - 1).getX() - ((river.get(river.size() - 1).getY() - y) * Math.tan(Math.toRadians(rotation)));
 						atEdge = true;
 					}
-					river.add(new Point2D(x, y));
+					river.add(new Point2D((int) x, (int) y));
 				} while (!atEdge);
 			}
-			Polygon p = new Polygon(riverC, ESHAPE_TYPE.POLYGON, river.get(0));
-			p.setCoords(river.toArray(new Point2D[river.size()]));
+			Point2D[] realRiver = getRealRiver(river, size, isHorizontal, ww, wh);
+			Polygon p = new Polygon(riverC, ESHAPE_TYPE.POLYGON, realRiver[0]);
+			p.setCoords(realRiver);
 			rivers.add(p);
-			calcDrawable();
 		}
+		
+		return rivers;
 	}
 
 	/**
@@ -279,5 +283,7 @@ public class Map {
 	 */
 	public void setRivers(ArrayList<Polygon> rivers) {
 		this.rivers = rivers;
+		land = new Rectangle(landC, new Point2D(ww/2, wh/2), ww, wh);
+		calcDrawable(new Point2D(ww/2, wh/2));
 	}
 }

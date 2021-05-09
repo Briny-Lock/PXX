@@ -104,6 +104,14 @@ public class Carriage implements IDrawable {
 	public Image getCarriageImage() {
 		return carriageImage;
 	}
+	
+	/**
+	 * @param carriageImage the carriageImage
+	 */
+	public void setCarriageImage(Image carriageImage) {
+		this.carriageImage = carriageImage;
+	}
+	
 
 	/**
 	 * @return the rotation

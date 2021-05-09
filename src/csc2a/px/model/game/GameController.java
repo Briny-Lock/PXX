@@ -23,7 +23,7 @@ public class GameController {
 	private static final int CARR_H = 20;
 	
 	private Color defC;
-	private Color[] routeColors = {Color.RED, Color.BLUE, Color.PURPLE, Color.YELLOW, Color.DEEPSKYBLUE, Color.HOTPINK};
+	private Color[] routeColors;
 	private double townSize = 20;
 	
 	private Map map;
@@ -32,6 +32,8 @@ public class GameController {
 	private AbstractFactory<Shape> factory;
 	private ArrayList<ESHAPE_TYPE> availableShapes;
 	private ArrayList<Integer> chances;
+	private double ww;
+	private double wh;
 	
 	private int tickCounter = 0;
 	private float tickCorrection = 0;
@@ -46,31 +48,50 @@ public class GameController {
 	
 	private EGAME_STATE gameState = EGAME_STATE.CONTINUE;
 	
-	public GameController(Map map, Image carriageImage) {
+	public GameController(Color defC, Color[] routeColors, Image carriageImage, double ww, double wh) {
+		this.defC = defC;
+		this.routeColors = routeColors;
 		factory = new ShapeFactory();
-		this.map = map;
 		routes = new Route[NUM_ROUTES];
 		for (int i = 0; i < NUM_ROUTES; i++) {
-			routes[i] = new Route(routeColors[i], carriageImage, CARR_W, CARR_H, coinPerDelivery);
+			routes[i] = new Route(this.routeColors[i], carriageImage, CARR_W, CARR_H, coinPerDelivery);
 			if (i < 3)
 				routes[i].setUnlocked(true);
 		}
-		availableShapes = new ArrayList<>();
-		initAvailableShapes();
-		chances = new ArrayList<>();
-		towns = new ArrayList<>();
-		initTowns();
-		demo();
+		this.ww = ww;
+		this.wh = wh;
 	}
 
 	public void initTowns() {
 		ArrayList<Point2D> points = new ArrayList<>();
-		for (int i = 0; i < 3; i++) {
-			Point2D point = getRandPos();
-			while (points.contains(point)) {
-				point = getRandPos();
-			}
-			points.add(point);
+
+		boolean done = false;
+		while (!done) {
+			int failSafe = 0;
+			Point2D point;
+			boolean isTaken = false;
+			boolean inRiver = false;			
+			do {
+				isTaken = false;
+				failSafe++;
+				Point2D[] drawable = map.getDrawable();
+				point = getRandPos(drawable[0], drawable[1]);
+				for (Point2D p : points) {
+					if (p.distance(point) < townSize)
+						isTaken = true;
+				}
+				inRiver = map.inRiver(point);
+				if (!isTaken && !inRiver) {
+					points.add(point);
+					if (points.size() == 3) {
+						done = true;
+					}
+				} else if (failSafe >= 200) {
+					points.clear();
+					failSafe = 0;
+					map.calcDrawable(getRandPos(new Point2D(0, 0), new Point2D(ww, wh)));
+				}
+			} while (isTaken || inRiver);
 		}
 		towns.add(new Town(factory.createCircle(defC, points.get(0), townSize/2)));
 		chances.add(1);
@@ -80,11 +101,12 @@ public class GameController {
 		chances.add(1);
 	}
 
-	private Point2D getRandPos() {
+	private Point2D getRandPos(Point2D p1, Point2D p2) {
 		Random random = new Random();
-		Point2D[] drawable = map.getDrawable();
-		return new Point2D(random.nextInt((int) (drawable[2].getX() - drawable[0].getX()) + 1) + (int) drawable[0].getX(), 
-				random.nextInt((int) (drawable[2].getY() - drawable[0].getY()) + 1) + (int) drawable[0].getY());
+		Point2D point = new Point2D(random.nextInt((int) (p2.getX() - p1.getX()) + 1) + (int) p1.getX(), 
+				random.nextInt((int) (p2.getY() - p1.getY()) + 1) + (int) p1.getY());
+		return new Point2D((point.getX() < p1.getX()) ? p1.getX() : Math.min(p2.getX(), point.getX()), 
+						(point.getY() < p1.getY()) ? p1.getY() : Math.min(p2.getY(), point.getY()));
 	}
 	
 	public Shape createGoods(ESHAPE_TYPE type, Point2D pos) {
@@ -104,19 +126,6 @@ public class GameController {
 		for (Route route : routes) {
 			route.setCarriageImage(carriageImage);
 		}		
-	}
-	
-	private void demo() {
-		towns = new ArrayList<>(Arrays.asList(
-				new Town(new Circle(Color.GRAY, new Point2D(100, 400), 10)),
-				new Town(new Circle(Color.RED, new Point2D(50, 50), 10)),
-				new Town(new Rectangle(Color.GRAY, new Point2D(100, 50), 10, 20)),
-				new Town(new Triangle(Color.ALICEBLUE, new Point2D(250, 100), 20))));
-				
-		routes[0].linkTowns(towns.get(0), towns.get(1));
-		routes[0].linkTowns(towns.get(1), towns.get(2));
-		routes[0].linkTowns(towns.get(2), towns.get(3));
-		routes[0].addWagon();
 	}
 	
 	public void initAvailableShapes() {
@@ -145,16 +154,13 @@ public class GameController {
 			setGameState(EGAME_STATE.LOSE);
 			return;
 		}
-		reputation += deltaTime/4;
-		System.out.println("Rep: " + reputation);
+		reputation += deltaTime/10;
 		if (reputation > 100) {
 			setGameState(EGAME_STATE.WIN);
 			return;
 		}
 		map.updateDrawable();
 		Random random = new Random();
-		
-		
 		
 		if (generateTown(deltaTime)) {
 			int total = 0;
@@ -208,11 +214,18 @@ public class GameController {
 	}
 	
 	private boolean addTown(ESHAPE_TYPE type) {
-		Point2D pos = getRandPos();
+		boolean isTaken;
+		Point2D pos = null;
+		Point2D[] drawable = map.getDrawable();
 		ArrayList<Point2D> points = getTownPos();
-		while (points.contains(pos)) {
-			pos = getRandPos();
-		}
+		do {
+			isTaken = false;
+			pos = getRandPos(drawable[0], drawable[1]);
+			for (Point2D p : points) {
+				if (pos.distance(p) < townSize)
+					isTaken = true;
+			}
+		} while (isTaken);
 		
 		switch(type) {
 		case CIRCLE:
@@ -230,6 +243,7 @@ public class GameController {
 	}
 
 	public void draw(IDrawVisitor v) {
+		map.draw(v);
 		for (Route route : routes) {
 			route.draw(v);
 		}
@@ -272,6 +286,11 @@ public class GameController {
 
 	public void setMap(Map map) {
 		this.map = map;
+		availableShapes = new ArrayList<>();
+		initAvailableShapes();
+		chances = new ArrayList<>();
+		towns = new ArrayList<>();
+		initTowns();
 	}
 
 	public Map getMap() {

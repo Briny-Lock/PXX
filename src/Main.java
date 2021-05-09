@@ -13,6 +13,7 @@ import csc2a.px.model.shape.Rectangle;
 import csc2a.px.model.shape.Shape;
 import csc2a.px.model.shape.Triangle;
 import csc2a.px.model.ui.GameCanvas;
+import csc2a.px.model.ui.PracticalPane;
 import javafx.application.Application;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
@@ -33,33 +34,13 @@ public class Main extends Application{
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		GameCanvas canvas = new GameCanvas();
-		Group root = new Group();
-		BorderPane pane = new BorderPane();
-		pane.setCenter(canvas);
-		root.getChildren().add(canvas);
+		Image carImage = new Image(getClass().getResourceAsStream("assets/carriage.png"));
+		PracticalPane root = new PracticalPane(carImage);
 		Scene scene = new Scene(root, 500, 500);
 		scene.setFill(Color.web("#2f2f2f"));
 		
-		
 		primaryStage.setScene(scene);
 		primaryStage.show();
-		
-		Image carriageImage = new Image(getClass().getResourceAsStream(("assets/carriage.png")));
-		Map map = new Map(Color.DARKSEAGREEN, Color.CORNFLOWERBLUE, scene.getWidth(), scene.getHeight());
-		map.generateRandomMap(1, 60);
-		GameController controller = new GameController(map, carriageImage);
-		
-		GameLoop loop = new GameLoop() {
-			
-			@Override
-			public void tick(float deltaTime) {
-				controller.update(deltaTime);
-				canvas.redrawCanvas(controller);
-			}
-		};
-		
-		loop.start();
 		
 	}
 

@@ -127,7 +127,12 @@ public class Wagon {
 		}
 	}
 	
-	public void setCarriageImage(Image carriageImage) { this.carriageImage = carriageImage; }	
+	public void setCarriageImage(Image carriageImage) { 
+		this.carriageImage = carriageImage; 
+		for (Carriage carriage : carriages) {
+			carriage.setCarriageImage(carriageImage);
+		}
+	}	
 	public Point2D getPos() { return pos; }
 	public Point2D getDest() { return dest; }
 	public void setForward(boolean isForward) { this.isForward = isForward; }

@@ -2,8 +2,6 @@ package csc2a.px.model.ui;
 
 import java.io.File;
 import java.util.Optional;
-import java.util.Random;
-
 import csc2a.px.model.file.MapFileHandler;
 import csc2a.px.model.game.GameController;
 import csc2a.px.model.game.Map;
@@ -15,12 +13,13 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.input.KeyCombination;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 
-public abstract class GameMenuBar extends MenuBar {
-	
-	public GameMenuBar(GameController controller) {		
+public abstract class GameMenuBar extends MenuBar {	
+	public GameMenuBar(GameController controller) {
+		
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setInitialDirectory(new File("data"));
 		
@@ -52,6 +51,7 @@ public abstract class GameMenuBar extends MenuBar {
 		saveMapFile.setOnAction(event -> {
 			fileChooser.setTitle("Save Map");
 			fileChooser.getExtensionFilters().add(new ExtensionFilter("Map", "*.map"));
+			System.out.println(this.getScene().getWindow());
 			File fileToSave = fileChooser.showOpenDialog(this.getScene().getWindow());
 			if (fileToSave != null) {
 				if (!MapFileHandler.saveMapToFile(controller.getMap(), fileToSave)) {
@@ -70,9 +70,9 @@ public abstract class GameMenuBar extends MenuBar {
 			}
 		});
 		MenuItem randomizeMap = new MenuItem("Genereate _Random Map");
+		randomizeMap.setAccelerator(KeyCombination.keyCombination("shortcut+r"));
 		randomizeMap.setOnAction(event -> {
-			Random random = new Random();
-			controller.getMap().generateRandomMap(random.nextInt(2) + 1, random.nextInt(45 - 15 + 1) + 15);
+			randomRiver();
 		});
 		MenuItem exitItem = new MenuItem("E_xit"); 
 		exitItem.setOnAction(event -> {
@@ -80,7 +80,7 @@ public abstract class GameMenuBar extends MenuBar {
 			confirmAlert.setHeaderText("Exit Application");
 			confirmAlert.setContentText("Are you sure you want to exit?");
 			Optional<ButtonType> response = confirmAlert.showAndWait();;
-			if (response.get() == ButtonType.YES) {
+			if (response.get() == ButtonType.OK) {
 				Platform.exit();
 			}
 			
@@ -91,7 +91,7 @@ public abstract class GameMenuBar extends MenuBar {
 		Menu gameMenu = new Menu("_Game");
 		MenuItem play = new MenuItem("_Play");
 		play.setOnAction(event -> {
-			play();
+			start();
 		});
 		MenuItem stop = new MenuItem("_Play");
 		stop.setOnAction(event -> {
@@ -112,11 +112,12 @@ public abstract class GameMenuBar extends MenuBar {
 		
 		infoMenu.getItems().addAll(aboutItem);
 		
-		this.getMenus().addAll(fileMenu, infoMenu);
+		this.getMenus().addAll(fileMenu, gameMenu, infoMenu);
 	}
 
-	public abstract void play();
+	public abstract void start();
 	public abstract void stop();
 	public abstract void showHowToPlay();
 	public abstract void showAbout();
+	public abstract void randomRiver();
 }
