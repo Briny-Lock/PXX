@@ -1,5 +1,6 @@
 package csc2a.px.model.visitor;
 
+import csc2a.px.model.Common;
 import csc2a.px.model.game.Carriage;
 import csc2a.px.model.shape.Circle;
 import csc2a.px.model.shape.Line;
@@ -8,8 +9,6 @@ import csc2a.px.model.shape.Rectangle;
 import csc2a.px.model.shape.Triangle;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.effect.ColorAdjust;
-import javafx.scene.paint.Color;
 import javafx.scene.transform.Rotate;
 
 
@@ -87,30 +86,13 @@ public class DrawShapesVisitor implements IDrawVisitor {
 	@Override
 	public void visit(Carriage c) {
 		gc.save();
-				
-		ColorAdjust effect = new ColorAdjust();
 		
-		double hue = map((c.getC().getHue() + 180) % 360, 0, 360, -1, 1);
-		effect.setHue(hue);
-
-		double saturation = c.getC().getSaturation();
-		effect.setSaturation(saturation);
-
-		double brightness = map( c.getC().getBrightness(), 0, 1, -1, 0);
-		effect.setBrightness(brightness);
-		
-		gc.setEffect(effect);
-		
-		
+		gc.setEffect(Common.getColorAdjust(c.getC()));
 		
 		transformContext(c);
 		gc.drawImage(c.getCarriageImage(), c.getRefPos().getX(), c.getRefPos().getY(), c.getW(), c.getH());
 		gc.restore();
 	}
-	
-	public static double map(double value, double start, double stop, double targetStart, double targetStop) {
-        return targetStart + (targetStop - targetStart) * ((value - start) / (stop - start));
-   }
 	
 	public void clear() {
 		gc.setEffect(null);

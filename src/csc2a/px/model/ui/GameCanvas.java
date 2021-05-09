@@ -8,20 +8,29 @@ import javafx.beans.property.DoubleProperty;
 import javafx.scene.canvas.Canvas;
 
 public class GameCanvas extends Canvas {
-	GameController controller;
-	ArrayList<Town> towns;
-	DrawShapesVisitor visitor;
+	private DrawShapesVisitor visitor;
+	private GameController controller;
 	
-	public GameCanvas() {
+	public GameCanvas(GameController controller) {
 		setWidth(500);
 		setHeight(500);
 		
 		visitor = new DrawShapesVisitor();
-		visitor.setGc(getGraphicsContext2D(), this.getWidth(), this.getHeight());		
-	}
-	
-	public void setController(GameController controller) {
+		visitor.setGc(getGraphicsContext2D(), this.getWidth(), this.getHeight());
+		
 		this.controller = controller;
+		
+		setOnMouseDragged(event -> {
+			
+		});
+		
+		setOnMouseDragOver(event -> {
+					
+		});
+
+		setOnMouseDragReleased(event -> {
+			
+		});
 	}
 	
 	public void bindProperties(DoubleProperty widthProperty, DoubleProperty heightProperty) {
@@ -29,7 +38,7 @@ public class GameCanvas extends Canvas {
 		heightProperty.bind(heightProperty);
 	}
 	
-	public void redrawCanvas(GameController controller) {
+	public void redrawCanvas() {
 		visitor.setGc(getGraphicsContext2D(), this.getWidth(), this.getHeight());
 		controller.draw(visitor);
 	}

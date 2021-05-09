@@ -4,9 +4,9 @@
 package csc2a.px.model.game;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
+import csc2a.px.model.Common;
 import csc2a.px.model.abstract_factory.ShapeFactory;
 import csc2a.px.model.shape.ESHAPE_TYPE;
 import csc2a.px.model.shape.Line;
@@ -141,7 +141,7 @@ public class Route {
 		for (Point2D p : bridge) {
 			boolean onLine = false;
 			for (int i = 1; i < line.getCoords().length; i++) {
-				if(isBetween(line.getxCoords()[i - 1], line.getxCoords()[i], p.getX()) && isBetween(line.getyCoords()[i - 1], line.getyCoords()[i], p.getY())) {
+				if(Common.isBetween(line.getxCoords()[i - 1], line.getxCoords()[i], p.getX()) && Common.isBetween(line.getyCoords()[i - 1], line.getyCoords()[i], p.getY())) {
 					onLine = true;
 					break;
 				}
@@ -152,15 +152,7 @@ public class Route {
 		return true;
 	}
 	
-	private boolean isBetween(double a, double b, double value) {
-		// ensures a is min and b is max
-		if (a > b) {
-			double c = a;
-			a = b;
-			b = c;
-		}		
-		return (value > a && value < b);
-	}
+	
 	
 	public void removeTown(Town town) {
 		for (Town t : towns) {

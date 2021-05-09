@@ -6,7 +6,7 @@ public abstract class GameLoop extends AnimationTimer {
 
 	boolean isPaused = false, pauseScheduled = false, playScheduled = false;
 
-	long lastFrameTimeNanos;
+	long lastFrameTimeNanos = 0;
 	
 	@Override
 	public void handle(long now) {
@@ -19,6 +19,9 @@ public abstract class GameLoop extends AnimationTimer {
 	        pauseScheduled = false;
 	    }
 		if (!isPaused) {
+			if ((now - lastFrameTimeNanos) / 1e9 > 5) {
+				lastFrameTimeNanos = now;
+			}
 	        float secondsSinceLastFrame = (float) ((now - lastFrameTimeNanos) / 1e9);
 	        lastFrameTimeNanos = now;
 	        tick(secondsSinceLastFrame);

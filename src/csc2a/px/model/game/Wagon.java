@@ -11,15 +11,10 @@ import javafx.scene.paint.Color;
 
 public class Wagon {
 	private static final int DEF_MAX_CARRIAGES = 4;
-	private static final int DEF_SLOW_DIST = 10;
-	private static final float MIN_SPEED = 0.2f;
 	private static final float MAX_SPEED = 50f;
-	private static final double DEF_ACCELERATION = 0.15;
 	private static final double DEF_CARR_GAP = 3;
 	
 	private double speed;
-	private double acceleration = DEF_ACCELERATION;
-	
 	private ArrayList<Carriage> carriages;
 	private int maxCarriages = DEF_MAX_CARRIAGES;
 	private float rotation;
@@ -76,41 +71,11 @@ public class Wagon {
 	
 	public void move(float deltaTime) {
 		// deltaTime is used to run independently from frame rate
-		if ((Math.abs(dest.getX() - pos.getX()) < 1 && Math.abs(dest.getY() - pos.getY()) < 1)) {
+		if (pos.distance(dest) < 1 || (pos.distance(prevPos) > dest.distance(prevPos))) {
 			pos = dest;
 			return;
 		}
 		
-		//Speed up
-//		if (pos.getX() != dest.getX() || pos.getY() != dest.getY()) {
-//			if (xspeed < MAX_SPEED) {
-//				xspeed += acceleration * (prevPos.getX() - pos.getX());
-//			}
-//			if (xspeed > MAX_SPEED) {
-//				xspeed = MAX_SPEED;
-//			}
-//			if (yspeed < MAX_SPEED) {
-//				yspeed += acceleration * (prevPos.getY() - pos.getY());
-//			}
-//			if (yspeed > MAX_SPEED) {
-//				yspeed = MAX_SPEED;
-//			}
-//		}
-//		// Slow down
-//		if (Math.abs(pos.getX() - dest.getX()) < DEF_SLOW_DIST && pos.getX() != dest.getX()) {				
-//			// deceleration for a smooth stop
-//			xspeed -= acceleration * (dest.getX() - pos.getX());
-//			if (xspeed < MIN_SPEED) {
-//				xspeed = MIN_SPEED;
-//			}
-//		}
-//		if (Math.abs(pos.getY() - dest.getY()) < DEF_SLOW_DIST && pos.getY() != dest.getY()) {			
-//			// deceleration for a smooth stop
-//			yspeed -= acceleration * (dest.getY() - pos.getY());
-//			if (yspeed < MIN_SPEED) {
-//				yspeed = MIN_SPEED;
-//			}
-//		}
 		Point2D motionVector = new Point2D(0, 0);
 		if(deltaTime < 10)
 			motionVector = new Point2D((float) (Math.cos(Math.toRadians(-rotation)) * deltaTime * speed), (float) (Math.sin(Math.toRadians(rotation)) * deltaTime * speed));

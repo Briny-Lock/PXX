@@ -27,7 +27,6 @@ public class GameController {
 	private double townSize = 20;
 	
 	private Map map;
-	private Image carriageImage;
 	private Route[] routes;
 	private ArrayList<Town> towns;
 	private AbstractFactory<Shape> factory;
@@ -36,7 +35,7 @@ public class GameController {
 	
 	private int tickCounter = 0;
 	private float tickCorrection = 0;
-	private int reputation = 10;
+	private float reputation = 10;
 
 	private int coin = 100000;
 	private int routeCost = 50;
@@ -45,10 +44,11 @@ public class GameController {
 	private int carriageCost = 15;
 	private int coinPerDelivery = 2;
 	
+	private EGAME_STATE gameState = EGAME_STATE.CONTINUE;
+	
 	public GameController(Map map, Image carriageImage) {
 		factory = new ShapeFactory();
 		this.map = map;
-		this.carriageImage = carriageImage;
 		routes = new Route[NUM_ROUTES];
 		for (int i = 0; i < NUM_ROUTES; i++) {
 			routes[i] = new Route(routeColors[i], carriageImage, CARR_W, CARR_H, coinPerDelivery);
@@ -101,7 +101,6 @@ public class GameController {
 	}
 
 	public void setCarriageImage(Image carriageImage) {
-		this.carriageImage = carriageImage;
 		for (Route route : routes) {
 			route.setCarriageImage(carriageImage);
 		}		
@@ -142,10 +141,20 @@ public class GameController {
 	}
 	
 	public void update(float deltaTime) {
+		if (reputation <= 0) {
+			setGameState(EGAME_STATE.LOSE);
+			return;
+		}
+		reputation += deltaTime/4;
+		System.out.println("Rep: " + reputation);
+		if (reputation > 100) {
+			setGameState(EGAME_STATE.WIN);
+			return;
+		}
 		map.updateDrawable();
 		Random random = new Random();
 		
-		reputation++;
+		
 		
 		if (generateTown(deltaTime)) {
 			int total = 0;
@@ -182,7 +191,7 @@ public class GameController {
 				}
 			}
 			
-			
+			reputation -= town.getReputationLoss() * deltaTime;
 		}
 		
 		for (Route route : routes) {
@@ -267,5 +276,13 @@ public class GameController {
 
 	public Map getMap() {
 		return map;
+	}
+
+	public EGAME_STATE getGameState() {
+		return gameState;
+	}
+
+	public void setGameState(EGAME_STATE gameState) {
+		this.gameState = gameState;
 	}
 }

@@ -1,8 +1,6 @@
 package csc2a.px.model.game;
 
 import java.util.ArrayList;
-import java.util.Random;
-
 import csc2a.px.model.shape.ESHAPE_TYPE;
 import csc2a.px.model.shape.Shape;
 import csc2a.px.model.visitor.IDrawVisitor;
@@ -111,6 +109,6 @@ public class Town {
 		if (!(obj instanceof Town))
 			return false;
 		Town town = (Town) obj;
-		return (this.pos.distance(town.getPos()) == 0 && this.shape.getType() == town.getShape().getType()) ? true : false;
+		return (this.pos.distance(town.getPos()) == 0 && this.shape.getType() == town.getShape().getType());
 	}
 }

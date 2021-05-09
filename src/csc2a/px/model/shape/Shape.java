@@ -3,8 +3,6 @@
  */
 package csc2a.px.model.shape;
 
-import java.io.Serializable;
-
 import csc2a.px.model.visitor.IDrawVisitor;
 import csc2a.px.model.visitor.IDrawable;
 import javafx.geometry.Point2D;
@@ -15,11 +13,10 @@ import javafx.scene.paint.Color;
  * @version PX
  *
  */
-public abstract class Shape implements IDrawable, Serializable{
+public abstract class Shape implements IDrawable{
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -8147198822597481084L;
 	protected Point2D pos;
 	protected Color c;
 	protected ESHAPE_TYPE type;

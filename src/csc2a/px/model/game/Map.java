@@ -1,9 +1,9 @@
 package csc2a.px.model.game;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Random;
 
+import csc2a.px.model.Common;
 import csc2a.px.model.shape.ESHAPE_TYPE;
 import csc2a.px.model.shape.Polygon;
 import csc2a.px.model.shape.Rectangle;
@@ -11,11 +11,10 @@ import csc2a.px.model.visitor.IDrawVisitor;
 import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 
-public class Map implements Serializable{
+public class Map {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 8097079815630434259L;
 	private static final int INIT_AREA_SIZE = 20;
 	private static final float AREA_SHIFT = 0.2f;
 	
@@ -65,23 +64,13 @@ public class Map implements Serializable{
 	public boolean inRiver(Point2D point) {
 		for (Polygon river : rivers) {
 			for(int i = 0; i < river.getCoords().length/2; i++) {
-				if ((isBetween(river.getxCoords()[i], river.getxCoords()[river.getxCoords().length - i - 1], point.getX())) || 
-						(isBetween(river.getyCoords()[i], river.getyCoords()[river.getyCoords().length - i - 1], point.getY()))) {
+				if ((Common.isBetween(river.getxCoords()[i], river.getxCoords()[river.getxCoords().length - i - 1], point.getX())) || 
+						(Common.isBetween(river.getyCoords()[i], river.getyCoords()[river.getyCoords().length - i - 1], point.getY()))) {
 					return true;
 				}
 			}
 		}
 		return false;
-	}
-
-	public static boolean isBetween(double a, double b, double value) {
-		// ensures a is min and b is max
-		if (a > b) {
-			double c = a;
-			a = b;
-			b = c;
-		}		
-		return (value > a && value < b);
 	}
 	
 	public void updateDrawable() {
