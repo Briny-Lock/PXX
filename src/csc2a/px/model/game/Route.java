@@ -33,6 +33,7 @@ public class Route {
 	private Image carriageImage;
 	private double carrW, carrH;
 	private int coinPerDelivery;
+	private boolean isUnlocked = false;
 	
 	public Route(Color c, Image carriageImage, double carrW, double carrH, int coinPerDelivery) {
 		lines = new ArrayList<>();
@@ -42,9 +43,12 @@ public class Route {
 		factory = new ShapeFactory();
 		this.c = c;
 		this.carriageImage = carriageImage;
+
 		this.carrW = carrW;
 		this.carrH = carrH;
 		this.coinPerDelivery = coinPerDelivery;
+
+		addWagon();
 	}
 	
 	public boolean linkTowns(Town town1, Town town2) {
@@ -176,19 +180,21 @@ public class Route {
 		return true;
 	}
 	
-	public void update(IDrawVisitor v, int coin, float deltaTime) {
-		for (Line l : lines) {
-			l.draw(v, true);
-		}
-		for (Town t : towns) {
-			t.drawAll(v);
-		}
+	public void update(int coin, float deltaTime) {		
 		for (Wagon wagon : wagons) {
 			if (wagon.getPos().equals(wagon.getDest())) {
 				processGoods(coin, wagon);
 			} else {
 				wagon.move(deltaTime);
 			}
+		}
+	}
+	
+	public void draw(IDrawVisitor v) {
+		for (Line l : lines) {
+			l.draw(v, true);
+		}
+		for (Wagon wagon : wagons) {
 			wagon.drawCarriages(v);
 		}
 	}
@@ -197,12 +203,10 @@ public class Route {
 		for (int i = 0; i < towns.size(); i++) {
 			Town t = towns.get(i);
 			if (t.getPos().equals(wagon.getPos())) {
-				if (wagon.isForward()) {
-					if (t == towns.get(towns.size() - 1))
-						wagon.setForward(false);
-				} else {
-					if (t == towns.get(0))
-						wagon.setForward(true);
+				if (wagon.isForward() && t == towns.get(towns.size() - 1)) {
+					wagon.setForward(false);
+				} else if (!wagon.isForward() && t == towns.get(0)) {					
+					wagon.setForward(true);
 				}
 				Shape goods = wagon.deliverGoods(t.getWantedGoods());
 				if (goods == null) {
@@ -248,5 +252,20 @@ public class Route {
 				predicted.add(t.getShape().getType());
 		}
 		return predicted;
+	}
+	
+	public void setCarriageImage(Image carriageImage) {
+		this.carriageImage = carriageImage;
+		for (Wagon wagon : wagons) {
+			wagon.setCarriageImage(carriageImage);
+		}
+	}
+
+	public boolean isUnlocked() {
+		return isUnlocked;
+	}
+
+	public void setUnlocked(boolean isUnlocked) {
+		this.isUnlocked = isUnlocked;
 	}
 }

@@ -1,9 +1,10 @@
 package csc2a.px.model.shape;
 
+import csc2a.px.model.visitor.IDrawVisitor;
 import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 
-public abstract class Polygon extends Shape {
+public class Polygon extends Shape {
 	protected Point2D[] coords;	
 
 	public Polygon(Color c, ESHAPE_TYPE type, Point2D refPos) {
@@ -11,7 +12,7 @@ public abstract class Polygon extends Shape {
 	}
 
 
-	protected abstract void calcCoords();
+	protected void calcCoords() {};
 	
 	/**
 	 * @return the xCoords
@@ -37,5 +38,14 @@ public abstract class Polygon extends Shape {
 	
 	public Point2D[] getCoords() {
 		return coords;
+	}
+
+	public void setCoords(Point2D[] coords) {
+		this.coords = coords;
+	}
+	
+	@Override
+	public void draw(IDrawVisitor v, boolean hasFill) {
+		v.visit(this, hasFill);
 	}
 }

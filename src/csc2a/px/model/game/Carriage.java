@@ -11,7 +11,7 @@ import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
 public class Carriage implements IDrawable {
-	public static final int DEF_MAX_GOODS = 6;
+	public static final int MAX_GOODS = 6;
 
 	private Color c;
 	private Point2D pos;
@@ -21,7 +21,6 @@ public class Carriage implements IDrawable {
 	private double w;
 	private double h;
 	
-	private int maxGoods = DEF_MAX_GOODS;
 	private static final float DEF_GOODS_SPACE = 2f;
 	
 	public Carriage(Color c, Point2D position, Image carriageImage, double w, double h, float rotation) {
@@ -35,7 +34,7 @@ public class Carriage implements IDrawable {
 	}
 	
 	public boolean addGoods(Shape goods) {
-		if (this.goods.size() < maxGoods) {
+		if (this.goods.size() < MAX_GOODS) {
 			this.goods.add(goods);
 			renderGoods();
 			return true;
@@ -68,6 +67,7 @@ public class Carriage implements IDrawable {
 	
 	public void updatePos(Point2D pos) {
 		this.pos = pos;
+		renderGoods();
 	}
 	
 	public void setRotation (float rotation) {

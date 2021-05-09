@@ -17,12 +17,16 @@ public class Town {
 	
 	private Point2D pos;
 	private Shape shape;
-	private int goodsCounter;
+	
+	private int tickCounter;
+	private float tickCorrection;
+	
 	private ArrayList<Shape> storedGoods;
 	private ArrayList<ESHAPE_TYPE> wantedGoods;
 	
 	public Town(Shape shape) {
-		this.goodsCounter = 0;
+		this.tickCounter = 0;
+		this.tickCorrection = 0;
 		this.shape = shape;
 		this.pos = shape.getPos();
 		storedGoods = new ArrayList<>();
@@ -40,12 +44,17 @@ public class Town {
 		return false;
 	}
 	
-	public boolean generateGoods() {
-		if (goodsCounter >= TICKS_TO_GOODS) {
-			goodsCounter = 0;
+	public boolean generateGoods(float deltaTime) {
+		tickCorrection += deltaTime;
+		while (tickCorrection > 1) {
+			tickCounter++;
+			tickCorrection -= 1;
+		}
+		if (tickCounter >= TICKS_TO_GOODS) {
+			tickCounter = 0;
 			return true;
 		} else {
-			goodsCounter++;
+			tickCounter++;
 			return false;
 		}
 	}

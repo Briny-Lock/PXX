@@ -75,7 +75,6 @@ public class Wagon {
 	}
 	
 	public void move(float deltaTime) {
-		//System.out.printf("%f : (%f,%f) at speed: %.5f\n", deltaTime, pos.getX(), pos.getY(), speed);
 		// deltaTime is used to run independently from frame rate
 		if ((Math.abs(dest.getX() - pos.getX()) < 1 && Math.abs(dest.getY() - pos.getY()) < 1)) {
 			pos = dest;
@@ -163,6 +162,7 @@ public class Wagon {
 		}
 	}
 	
+	public void setCarriageImage(Image carriageImage) { this.carriageImage = carriageImage; }	
 	public Point2D getPos() { return pos; }
 	public Point2D getDest() { return dest; }
 	public void setForward(boolean isForward) { this.isForward = isForward; }

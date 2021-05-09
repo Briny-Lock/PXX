@@ -1,7 +1,9 @@
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import csc2a.px.model.game.GameController;
 import csc2a.px.model.game.GameLoop;
+import csc2a.px.model.game.Map;
 import csc2a.px.model.game.Route;
 import csc2a.px.model.game.Town;
 import csc2a.px.model.game.Wagon;
@@ -43,14 +45,17 @@ public class Main extends Application{
 		primaryStage.setScene(scene);
 		primaryStage.show();
 		
-		Image carriageImage = new Image(getClass().getResourceAsStream(("assets/carriageblack.png")));
-		canvas.setImage(carriageImage);
+		Image carriageImage = new Image(getClass().getResourceAsStream(("assets/carriage.png")));
+		Map map = new Map(Color.DARKSEAGREEN, Color.CORNFLOWERBLUE, scene.getWidth(), scene.getHeight());
+		map.generateRandomMap(1, 60);
+		GameController controller = new GameController(map, carriageImage);
 		
 		GameLoop loop = new GameLoop() {
 			
 			@Override
 			public void tick(float deltaTime) {
-				canvas.redrawCanvas(deltaTime);
+				controller.update(deltaTime);
+				canvas.redrawCanvas(controller);
 			}
 		};
 		
