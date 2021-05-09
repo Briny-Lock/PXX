@@ -104,6 +104,7 @@ public class Town {
 	public ArrayList<ESHAPE_TYPE> getWantedGoods() { return wantedGoods; }
 	public Point2D getPos() { return pos; }
 	public Shape getShape() { return shape; }
+	public int getReputationLoss() { return (storedGoods.size() < DEF_MAX_GOODS) ? 0 : storedGoods.size() - DEF_MAX_GOODS; }
 	
 	@Override
 	public boolean equals(Object obj) {

@@ -145,6 +145,8 @@ public class GameController {
 		map.updateDrawable();
 		Random random = new Random();
 		
+		reputation++;
+		
 		if (generateTown(deltaTime)) {
 			int total = 0;
 			for (int i : chances) {
@@ -179,6 +181,8 @@ public class GameController {
 					}
 				}
 			}
+			
+			
 		}
 		
 		for (Route route : routes) {
