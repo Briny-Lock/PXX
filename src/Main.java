@@ -13,7 +13,7 @@ public class Main extends Application{
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		Image carImage = new Image(getClass().getResourceAsStream("assets/carriage.png"));
-		Image coinImage = new Image(getClass().getResourceAsStream("assets/Coin 64x64.png"));
+		Image coinImage = new Image(getClass().getResourceAsStream("assets/CoinIcon.png"));
 		PracticalPane root = new PracticalPane(carImage);
 		Scene scene = new Scene(root, 800, 600);
 		root.setKeyHandler(scene);
