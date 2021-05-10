@@ -11,16 +11,16 @@ import javafx.scene.paint.Color;
 
 public class Wagon {
 	private static final int DEF_MAX_CARRIAGES = 4;
-	private static final float MAX_SPEED = 50f;
+	private static final float SPEED = 40f;
 	private static final double DEF_CARR_GAP = 3;
 	
-	private double speed;
 	private ArrayList<Carriage> carriages;
 	private int maxCarriages = DEF_MAX_CARRIAGES;
 	private float rotation;
 	private boolean isForward = true;
 	
 	private Color c;
+	private Color defC;
 	private Image carriageImage;
 	
 	private Point2D pos;
@@ -30,8 +30,9 @@ public class Wagon {
 	private double carrW;
 	private double carrH;
 	
-	public Wagon(Color c, Point2D position , double carrW, double carrH, Image carriageImage) {
+	public Wagon(Color c, Color defC, Point2D position , double carrW, double carrH, Image carriageImage) {
 		this.c = c;
+		this.defC = defC;
 		this.pos = position;
 		this.dest = this.pos;
 		this.carrW = carrW;
@@ -53,7 +54,7 @@ public class Wagon {
 	
 	public boolean addCarriage() {
 		if (carriages.size() < maxCarriages) {
-			carriages.add(new Carriage(c, pos, carriageImage, carrW, carrH, rotation));
+			carriages.add(new Carriage(c, defC, pos, carriageImage, carrW, carrH, rotation));
 			renderCarriages();
 			return true;
 		} else
@@ -78,28 +79,34 @@ public class Wagon {
 		
 		Point2D motionVector = new Point2D(0, 0);
 		if(deltaTime < 10)
-			motionVector = new Point2D((float) (Math.cos(Math.toRadians(-rotation)) * deltaTime * speed), (float) (Math.sin(Math.toRadians(rotation)) * deltaTime * speed));
-		//System.out.println(motionVector.getX() + ":" + motionVector.getY());
-		if ((dest.getX() >= pos.getX() || dest.getY() > pos.getY()))
+			motionVector = new Point2D((float) (Math.cos(Math.toRadians(-rotation)) * deltaTime * SPEED), (float) (Math.sin(Math.toRadians(rotation)) * deltaTime * SPEED));
+		if (dest.getX() >= pos.getX() && dest.getY() > pos.getY())
+			pos = pos.add(motionVector);
+		else if (dest.getX() >= pos.getX())
 			pos = pos.add(motionVector);
 		else
 			pos = pos.subtract(motionVector);
-		
 		renderCarriages();
 	}
 	
 	private void renderCarriages() {
 		double xShift = 0, yShift = 0;
 		
-		xShift = (carrH + DEF_CARR_GAP)*Math.cos(Math.toRadians(rotation)); // d*cos(t);
+		xShift = (carrH + DEF_CARR_GAP)*Math.cos(Math.toRadians(-rotation)); // d*cos(-t);
 		yShift = (carrH + DEF_CARR_GAP)*Math.sin(Math.toRadians(rotation)); // d*sin(t);
 
 		carriages.get(0).updatePos(pos);
 		for (int i = 1; i < carriages.size(); i++) {
 			if (isForward)
-				carriages.get(i).updatePos(carriages.get(i - 1).getPos().add(xShift, yShift));
+				if (rotation <= 0)
+					carriages.get(i).updatePos(carriages.get(i - 1).getPos().add(xShift, yShift));
+				else
+					carriages.get(i).updatePos(carriages.get(i - 1).getPos().subtract(xShift, yShift));
 			else
-				carriages.get(i).updatePos(carriages.get(i - 1).getPos().subtract(xShift, yShift));
+				if (rotation <= 0)
+					carriages.get(i).updatePos(carriages.get(i - 1).getPos().subtract(xShift, yShift));
+				else
+					carriages.get(i).updatePos(carriages.get(i - 1).getPos().add(xShift, yShift));
 		}
 	}
 	
@@ -117,8 +124,6 @@ public class Wagon {
 		for (Carriage carriage : carriages) {
 			carriage.setRotation(rotation);
 		}
-		
-		speed = MAX_SPEED;
 	}
 	
 	public void drawCarriages(IDrawVisitor v) {

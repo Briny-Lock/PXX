@@ -30,6 +30,6 @@ public class Common {
 			a = b;
 			b = c;
 		}		
-		return (value > a && value < b);
+		return (value >= a && value < b);
 	}
 }

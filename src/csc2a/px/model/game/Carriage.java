@@ -20,11 +20,14 @@ public class Carriage implements IDrawable {
 	private float rotation;
 	private double w;
 	private double h;
+
+	private Color defC;
 	
-	private static final float DEF_GOODS_SPACE = 2f;
+	private static final float DEF_GOODS_SPACE = 6f;
 	
-	public Carriage(Color c, Point2D position, Image carriageImage, double w, double h, float rotation) {
+	public Carriage(Color c, Color defC, Point2D position, Image carriageImage, double w, double h, float rotation) {
 		this.c = c;
+		this.defC = defC;
 		this.pos = position;
 		this.carriageImage = carriageImage;
 		this.w = w;
@@ -57,11 +60,12 @@ public class Carriage implements IDrawable {
 	}
 	
 	private void renderGoods() {
-		Point2D prevPos = pos.add(2, 0);
+		Point2D prevPos = pos.add(w/2, -3);
 		for (int i = 0; i < goods.size(); i++) {
+			goods.get(i).setSize(5);
 			goods.get(i).setPos(prevPos.add(DEF_GOODS_SPACE, 0));
 			prevPos = goods.get(i).getPos();
-			goods.get(i).setC(Color.GRAY);
+			goods.get(i).setC(defC);
 		}
 	}
 	

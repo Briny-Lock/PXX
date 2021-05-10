@@ -19,7 +19,7 @@ public class GameController {
 	private static final int TICKS_TO_NEW_TOWN = 1000;
 	private static final int CARR_W = 10;
 	private static final int CARR_H = 20;
-	private static final int START_COIN = 100;
+	private static final int START_COIN = 10000;
 	private static final int START_REP = 10;
 	
 	
@@ -34,6 +34,7 @@ public class GameController {
 	private ArrayList<Town> towns;
 	private AbstractFactory<Shape> factory;
 	private ArrayList<ESHAPE_TYPE> availableShapes;
+	private ArrayList<ESHAPE_TYPE> unusedShapes;
 	private ArrayList<Integer> chances;
 	private double ww;
 	private double wh;
@@ -57,13 +58,15 @@ public class GameController {
 		factory = new ShapeFactory();
 		routes = new Route[NUM_ROUTES];
 		for (int i = 0; i < NUM_ROUTES; i++) {
-			routes[i] = new Route(this.routeColors[i], carriageImage, CARR_W, CARR_H, coinPerDelivery);
+			routes[i] = new Route(this.routeColors[i], defC, carriageImage, CARR_W, CARR_H, coinPerDelivery);
 			if (i < 3)
 				routes[i].setUnlocked(true);
 		}
 		setCurrentRoute(1);
 		this.ww = ww;
 		this.wh = wh;
+		unusedShapes = new ArrayList<>();
+		unusedShapes.add(ESHAPE_TYPE.CROSS);
 	}
 
 	public void initTowns() {
@@ -171,14 +174,19 @@ public class GameController {
 			for (int i : chances) {
 				total += i;
 			}
-			int rng = random.nextInt(total) + 1;
+			boolean newType = true;
+			int rng = random.nextInt(total + 1) + 1;
 			int buffer = 0;
 			for (int i = 0; i < chances.size(); i++) {
 				buffer += chances.get(i);
 				if (rng == buffer) {
 					addTown(availableShapes.get(i));
+					newType = false;
 					break;
 				}
+			}
+			if (newType) {
+				addTown(unusedShapes.get(random.nextInt(unusedShapes.size())));
 			}
 		}
 		
@@ -235,18 +243,35 @@ public class GameController {
 		switch(type) {
 		case CIRCLE:
 			towns.add(new Town(factory.createCircle(defC, pos, townSize/2), townSize, defC));
+			updateShapeChance(ESHAPE_TYPE.CIRCLE);
 			return true;
 		case RECTANGLE:
 			towns.add(new Town(factory.createRectangle(defC, pos, townSize, townSize), townSize, defC));
+			updateShapeChance(ESHAPE_TYPE.RECTANGLE);
 			return true;
 		case TRIANGLE:
 			towns.add(new Town(factory.createTriangle(defC, pos, townSize), townSize, defC));
+			updateShapeChance(ESHAPE_TYPE.TRIANGLE);
 			return true;
 		default:
 			return false;
 		}
 	}
 	
+	private void updateShapeChance(ESHAPE_TYPE type) {
+		for (int i = 0; i < availableShapes.size(); i++) {
+			if (availableShapes.get(i) == type) {
+				if (i < chances.size())
+					chances.set(i, chances.get(i) + 1);
+				else
+					chances.add(1);
+				return;
+			}
+		}
+		availableShapes.add(type);
+		chances.add(1);
+	}
+
 	public void linkTowns(Point2D p1, Point2D p2) {
 		if (isNearTown(p1) && isNearTown(p2) && routes[currentRoute].isUnlocked()) {
 			Point2D[] bridge = map.getBridge(p1, p2);
@@ -301,22 +326,21 @@ public class GameController {
 		this.routeCost = routeCost;
 	}
 
+	public int getCoin() {
+		return coin;
+	}
+
+	public int getReputation() {
+		return (int) reputation;
+	}
+
+	public int getCoinPerDelivery() {
+		return coinPerDelivery;
+	}
+
 	public void setMap(Map map) {
 		this.map = map;
-		availableShapes = new ArrayList<>();
-		initAvailableShapes();
-		chances = new ArrayList<>();
-		towns = new ArrayList<>();
-		initTowns();
-		for (int i = 0; i < routes.length; i++) {
-			routes[i].clear();
-			if(i < 3)
-				routes[i].setUnlocked(true);
-			else
-				routes[i].setUnlocked(false);
-		}
-		coin = START_COIN;
-		reputation = START_REP;
+		reset();
 	}
 
 	public Map getMap() {
@@ -339,7 +363,7 @@ public class GameController {
 		if (pos == null)
 			return false;
 		for (Town town : towns) {
-			if (pos.distance(town.getPos()) < townSize * 1.2) {
+			if (pos.distance(town.getPos()) < townSize * 2) {
 				return true;
 			}
 		}
@@ -393,8 +417,33 @@ public class GameController {
 	}
 
 	public void setCurrentRoute(int routeCounter) {
-		if (Common.isBetween(1, routes.length, routeCounter))
-			currentRoute = routeCounter;
+		if (Common.isBetween(1, routes.length + 1, routeCounter))
+			currentRoute = routeCounter - 1;
+		System.out.println(currentRoute);
 		colorCircle = new Circle(getCurrentColor(), new Point2D(ww - 15, wh - 15), 10);
+	}
+	
+	public void setSize(double w, double h) {
+		ww = w;
+		wh = h;
+	}
+	
+	public void reset() {
+		availableShapes = new ArrayList<>();
+		initAvailableShapes();
+		chances = new ArrayList<>();
+		towns = new ArrayList<>();
+		initTowns();
+		for (int i = 0; i < routes.length; i++) {
+			routes[i].clear();
+			if(i < 3)
+				routes[i].setUnlocked(true);
+			else
+				routes[i].setUnlocked(false);
+		}
+		coin = START_COIN;
+		reputation = START_REP;
+		unusedShapes = new ArrayList<>();
+		unusedShapes.add(ESHAPE_TYPE.CROSS);
 	}
 }

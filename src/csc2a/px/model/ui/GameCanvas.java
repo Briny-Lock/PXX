@@ -2,7 +2,8 @@ package csc2a.px.model.ui;
 
 import csc2a.px.model.game.GameController;
 import csc2a.px.model.visitor.DrawShapesVisitor;
-import javafx.beans.property.DoubleProperty;
+import javafx.beans.binding.DoubleBinding;
+import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.input.MouseButton;
@@ -54,9 +55,9 @@ public class GameCanvas extends Canvas {
 		});
 	}
 	
-	public void bindProperties(DoubleProperty widthProperty, DoubleProperty heightProperty) {
-		widthProperty().bind(widthProperty);
-		heightProperty().bind(heightProperty);
+	public void bindProperties(DoubleBinding widthBinding, DoubleBinding heightBinding) {
+		widthProperty().bind(widthBinding);
+		heightProperty().bind(heightBinding);
 	}
 	
 	public void redrawCanvas() {
@@ -68,11 +69,10 @@ public class GameCanvas extends Canvas {
 	
 	public void drawDragLine() {
 		if (!isPaused) {
-			if (controller.isNearTown(dragStart)) {
+			if (controller.isNearTown(dragStart) && dragEnd != null && dragStart != null) {
 				getGraphicsContext2D().setLineWidth(3);
 				getGraphicsContext2D().setStroke(controller.getCurrentColor());
 				getGraphicsContext2D().strokeLine(dragStart.getX(), dragStart.getY(), dragEnd.getX(), dragEnd.getY());
-				getGraphicsContext2D().stroke();
 			}
 		}
 	}
@@ -90,7 +90,6 @@ public class GameCanvas extends Canvas {
 
 	private void setKeyHandler() {
 		this.getScene().setOnKeyPressed(event -> {
-			System.out.println("Here: " + event.getCode());
 			if (!isPaused) {
 				switch (event.getCode()) {
 				case Q:
@@ -123,5 +122,10 @@ public class GameCanvas extends Canvas {
 
 	public void pause() {
 		this.isPaused = true;
+	}
+
+	public void bindProperties(ReadOnlyDoubleProperty widthBinding, DoubleBinding heightBinding) {
+		widthProperty().bind(widthBinding);
+		heightProperty().bind(heightBinding);
 	}
 }

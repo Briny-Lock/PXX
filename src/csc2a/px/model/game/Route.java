@@ -24,6 +24,7 @@ import javafx.scene.paint.Color;
 public class Route {
 	private static final int MAX_WAGONS = 4;
 	
+	private Color defC;
 	private Color c;
 	private ShapeFactory factory;
 	private ArrayList<Line> lines;
@@ -35,13 +36,17 @@ public class Route {
 	private int coinPerDelivery;
 	private boolean isUnlocked = false;
 	
-	public Route(Color c, Image carriageImage, double carrW, double carrH, int coinPerDelivery) {
+	private ArrayList<Town> toRemove;
+	
+	public Route(Color c, Color defC, Image carriageImage, double carrW, double carrH, int coinPerDelivery) {
 		lines = new ArrayList<>();
 		bridges = new ArrayList<>();
 		wagons = new ArrayList<>();
 		towns = new ArrayList<>();
 		factory = new ShapeFactory();
+		toRemove = new ArrayList<>();
 		this.c = c;
+		this.defC = defC;
 		this.carriageImage = carriageImage;
 
 		this.carrW = carrW;
@@ -60,22 +65,18 @@ public class Route {
 		if (check == -1) {
 			addTown(town1, 0);
 			addTown(town2, 1);
-			System.out.printf("Linked %s and %s\n", town1.getShape().getType(), town2.getShape().getType());
 			return true;
 		}
 		if (check == -2) {
 			check = checkTown(town2);
 			if (check == -2)
 				return false;
-			addTown(town1, check - 1);
-			System.out.printf("Linked %s and %s\n", town1.getShape().getType(), town2.getShape().getType());
+			addTown(town1, check);
 			return true;
 		}
 		if (checkTown(town2) >= 0)
 			return false;
 		addTown(town2, check + 1);
-
-		System.out.printf("Linked %s and %s\n", town1.getShape().getType(), town2.getShape().getType());
 		return true;
 	}
 	
@@ -103,20 +104,17 @@ public class Route {
 	public void addTown(Town town, int index) {
 		if (towns.size() < 1 || index == towns.size()) {
 			towns.add(town);
-			System.out.printf("Added %s at index %d\n", town.getShape().getType(), index);
 		} else if (index <= 0) {
 			ArrayList<Town> temp = new ArrayList<>();
 			temp.add(town);
 			temp.addAll(towns);
 			towns = temp;
-			System.out.printf("Added %s at index %d\n", town.getShape().getType(), index);
 		} else if (index < towns.size()) {
-			List<Town> preTown	= towns.subList(0, index + 1);
-			List<Town> postTown	= towns.subList(index, towns.size() - 1);
+			List<Town> preTown	= towns.subList(0, index);
+			List<Town> postTown	= towns.subList(index, towns.size());
 			towns = new ArrayList<>(preTown);
 			towns.add(town);
 			towns.addAll(postTown);
-			System.out.printf("Added %s at index %d\n", town.getShape().getType(), index);
 		}
 		renderLines();
 	}
@@ -171,17 +169,20 @@ public class Route {
 	
 	
 	
-	public void removeTown(Town town) {
-		System.out.println("Removing town");
+	public int removeTown(Town town) {
 		for (Town t : towns) {
 			if (t.equals(town)) {
-				towns.remove(t);
-				renderLines();
-				if (towns.size() < 2)
+				toRemove.add(t);
+				if (towns.size() < 2) {
 					towns.clear();
-				return;
+					int refund = wagons.size();
+					wagons.clear();
+					return refund;
+				}
+				return 0;
 			}
 		}
+		return 0;
 	}
 	
 	public boolean addWagon() {
@@ -189,17 +190,47 @@ public class Route {
 			return false;
 		if (towns.size() < 1)
 			return false;
-		wagons.add(new Wagon(c, towns.get(0).getPos(), carrW, carrH, carriageImage));
+		wagons.add(new Wagon(c, defC, towns.get(0).getPos(), carrW, carrH, carriageImage));
 		return true;
 	}
 	
-	public void update(int coin, float deltaTime) {		
+	public void update(int coin, float deltaTime) {
 		for (Wagon wagon : wagons) {
 			if (wagon.getPos().equals(wagon.getDest())) {
 				processGoods(coin, wagon);
 			} else {
 				wagon.move(deltaTime);
 			}
+		}
+		
+		ArrayList<Town> trueRemove = new ArrayList<>();
+		for (Town town : toRemove) {
+			boolean removable = true;
+			int index = -1;
+			for (Wagon wagon : wagons) {
+				if (wagon.isForward())
+					index = towns.indexOf(town);
+				else
+					index = towns.indexOf(town) + 1;
+				if (index >= lines.size()) {
+					removable = false;
+					break;
+				}
+				Point2D mid = lines.get(index).getMid();
+				if (wagon.getDest().equals(town.getPos()) || wagon.getDest().equals(mid)) {
+					removable = false;
+					break;
+				}
+			}
+			if (removable) {
+				towns.remove(town);
+				trueRemove.add(town);
+				renderLines();
+			}
+		}
+		
+		for (Town town : trueRemove) {
+			toRemove.remove(town);
 		}
 	}
 	
