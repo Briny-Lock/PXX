@@ -13,24 +13,21 @@ public class Main extends Application{
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		Image carImage = new Image(getClass().getResourceAsStream("assets/carriage.png"));
-		Image coinImage = new Image(getClass().getResourceAsStream("assets/CoinIcon.png"));
-		PracticalPane root = new PracticalPane(carImage);
+		Image coinImage = new Image(getClass().getResourceAsStream("assets/coinIcon.png"));
+		Image startImage = new Image(getClass().getResourceAsStream("assets/start.png"));
+		PracticalPane root = new PracticalPane(carImage, startImage);
 		Scene scene = new Scene(root, 800, 600);
 		root.setKeyHandler(scene);
 		
 		primaryStage.setScene(scene);
-		primaryStage.setFullScreen(true);
 		primaryStage.setTitle("Merchants");
 		primaryStage.getIcons().add(coinImage);
 		root.setPrefSize(primaryStage.getWidth(), primaryStage.getHeight());
 		primaryStage.setMinWidth(800);
 		primaryStage.setMinHeight(600);
-		primaryStage.widthProperty().addListener(e -> {
-			root.setNewWidth(primaryStage.getWidth());
-		});
-		primaryStage.heightProperty().addListener(e -> {
-			root.setNewHeight(primaryStage.getHeight());
-		});
+		primaryStage.setMaxWidth(800);
+		primaryStage.setMaxHeight(600);
+		primaryStage.setResizable(false);
 		primaryStage.show();
 	}
 

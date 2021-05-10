@@ -45,7 +45,14 @@ public class Map {
 			if (!inRiver(centre)) {
 				drawable[0] = centre.subtract(INIT_AREA_SIZE, INIT_AREA_SIZE); // Top Left
 				drawable[1] = centre.add(INIT_AREA_SIZE, INIT_AREA_SIZE); // Bottom Right
-				isSafe = true;
+				if (drawable[0].getX() > 0 && drawable[0].getX() < ww && drawable[0].getY() > 0 && drawable[0].getY() < wh
+						&& drawable[1].getX() > 0 && drawable[1].getX() < ww && drawable[1].getY() > 0 && drawable[1].getY() < wh)
+					isSafe = true;
+				else {
+					centre = centre.add(randPoint(-INIT_AREA_SIZE, INIT_AREA_SIZE));
+					centre = new Point2D((int) ((centre.getX() < 0) ? 0 : Math.min(ww - INIT_AREA_SIZE, centre.getX())), 
+							(int) ((centre.getY() < 0) ? 0 : Math.min(wh - INIT_AREA_SIZE, centre.getY())));
+				}
 			} else {
 				centre = centre.add(randPoint(-INIT_AREA_SIZE, INIT_AREA_SIZE));
 				centre = new Point2D((int) ((centre.getX() < 0) ? 0 : Math.min(ww - INIT_AREA_SIZE, centre.getX())), 
@@ -113,7 +120,7 @@ public class Map {
 		}
 	}
 	
-	public static ArrayList<Polygon> generateRandomRivers(Color riverC, int count, int maxSegmentDist, double ww, double wh, double size) {
+	public void generateRandomRivers(int count, int maxSegmentDist, double size) {
 		ArrayList<Polygon> rivers = new ArrayList<>();
 		for (int i = 0; i < count; i++) {
 			ArrayList<Point2D> river = new ArrayList<>();
@@ -199,71 +206,67 @@ public class Map {
 			rivers.add(p);
 		}
 		
-		return rivers;
+		setRivers(rivers);
 	}
 	
-	public Point2D[] getBridge(Point2D p1, Point2D p2) {
-		Point2D[] bridge = null;
+	private double[] calcMAndC(Point2D p1, Point2D p2) {
+		double[] mc = new double[2];
+		double m;
+		double c;
+		if (p1.getX() == p2.getX()) {
+			m = Double.NaN;
+			c = -p1.getX();
+		} else if (p1.getY() == p2.getY()) {
+			m = 0;
+			c = p1.getY();
+		} else {
+			m = (p2.getY() - p1.getY())/(p2.getX() - p1.getX());
+			c = p2.getY() - (p2.getX() * m);
+		}
+		mc[0] = m;
+		mc[1] = c;
+		return mc;
+	}
+	
+	private boolean linesIntercect(Point2D p1, Point2D p2, Point2D p3, Point2D p4, double m1, double m2, double c1, double c2) {
+		if (m1 == m2 && c1 == c2)
+			return true;
+		if (Double.isNaN(m1)) {
+			if (Common.isBetween(p3.getX(), p4.getX(), p1.getX())) {
+				double y = p1.getX() * m2 + c2;
+				if (Common.isBetween(p1.getY(), p2.getY(), y))
+						return true;
+			}
+			return false;
+		}
+		// Supposed x intersection
+		double x = (c2 - c1)/(m1 - m2);
+		if (!Common.isBetween(p1.getX(), p2.getX(), x))
+			return false;
+		double y1 = (m1 * x) + c1;
+		double y2 = (m2 * x) + c2;
+		return (y1 == y2 && Common.isBetween(p1.getY(), p2.getY(), y1));
+	}
+	
+	public boolean hasBridge(Point2D p1, Point2D p2) {
 		Point2D mid = Line.calcMidpoint(p1, p2);
-		double m1 = (mid.getY() - p1.getY())/(mid.getX() - p1.getX()); 
-		double c1 = (-m1 * p1.getX()) + p1.getY(); // y = m(x - x1) + y1 OR y = mx + (-mx1 + y1) == y = mx + c
-		double m2 = (p2.getY() - mid.getY())/(p2.getX() - mid.getX()); 
-		double c2 = (-m2 * mid.getX()) + mid.getY(); // y = m(x - x1) + y1 OR y = mx + (-mx1 + y1) == y = mx + c
+		double[] mc1 = calcMAndC(p1, mid);
+		double[] mc2 = calcMAndC(mid, p2);
 		for (Polygon polygon : rivers) {
 			for (int i = 1; i < polygon.getCoords().length/2; i++) {
 				Point2D p3 = polygon.getCoords()[i - 1], 
 						p4 = polygon.getCoords()[i];
 				Point2D p5 = polygon.getCoords()[polygon.getCoords().length - i - 1],
 						p6 = polygon.getCoords()[polygon.getCoords().length - i - 2];
-				double pm1 = (p4.getY() - p3.getY())/(p4.getX() - p3.getX()); 
-				double pc1 = (-pm1 * p3.getX()) + p3.getY(); // y = mx + (-mx1 + y1)
-				double pm2 = (p6.getY() - p5.getY())/(p6.getX() - p5.getX()); 
-				double pc2 = (-pm2 * p5.getX()) + p5.getY(); // y = mx + (-mx1 + y1)
-				// Supposed x intersections
-				double x1 = (pc1 - c1)/(m1 - pm1); // tmx + tc = pmx + pc OR x = (pc - tc)/(tm - pm)
-				double y1 = (m1 * x1) + c1;
-				double x2 = (pc2 - c2)/(m2 - pm2); // tmx + tc = pmx + pc OR x = (pc - tc)/(tm - pm)
-				double y2 = (m2 * x2) + c2;
+				double[] mc3 = calcMAndC(p3, p4);
+				double[] mc4 = calcMAndC(p5, p6);
 				
-				//Test if lines cross
-				boolean hasBridge = false;
-				Point2D start = null,
-						newMid = null,
-						end = null;
-				if ((y1 == (pm1 * x1) + pc1) && (p1.getY() == mid.getY() || Common.isBetween(p1.getY(), mid.getY(), y1))) {
-					double newX = (pc1 - c1)/(m1 - pm1);
-					double newY = (m1 * newX) + c1;
-					start = new Point2D(x1, y1);
-					newMid = new Point2D(newX, newY);
-					hasBridge = true;
-				}
-				if ((y2 == (pm2 * x2) + pc2) && (mid.getY() == p2.getY() || Common.isBetween(mid.getY(), p2.getY(), y1))) {
-					double newX = (pc2 - c2)/(m2 - pm2);
-					double newY = (m2 * newX) + c2;
-					newMid = new Point2D(x2, y2);
-					end = new Point2D(newX, newY);
-					hasBridge = true;
-				}
-				if (hasBridge) {
-					if (start != null && end != null) {
-						bridge = new Point2D[3];
-						bridge[0] = start;
-						bridge[1] = mid;
-						bridge[2] = end;
-					} else if (start != null) {
-						bridge = new Point2D[2];
-						bridge[0] = start;
-						bridge[1] = newMid;
-					} else {
-						bridge = new Point2D[2];
-						bridge[0] = newMid;
-						bridge[1] = end;
-					}
-					return bridge;
-				}
+				if (linesIntercect(p1, mid, p3, p4, mc1[0], mc1[1], mc3[0], mc3[1]))
+					if (linesIntercect(mid, p2, p5, p6, mc2[0], mc2[1], mc4[0], mc4[1]))
+						return true;
 			}
 		}
-		return bridge;
+		return false;
 	}
 
 	/**

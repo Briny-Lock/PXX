@@ -7,9 +7,6 @@ import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 
 public class Line extends Polygon {
-	private boolean hasGuardPost = false;
-	private Color bridgeColor = Color.BROWN;
-	private Point2D[] bridge;
 	private Point2D dest;
 	
 	public Line(Color c, Point2D start, Point2D dest) {
@@ -17,13 +14,6 @@ public class Line extends Polygon {
 		this.dest = dest;
 		calcCoords();
 	}
-	
-	public Line(Color c, Point2D start, Point2D dest, Point2D[] bridge) {
-		this(c, start, dest);
-		this.bridge = bridge;		
-	}
-	
-	public void addGuardPost() { hasGuardPost = true; }
 	
 	@Override
 	protected void calcCoords() {
@@ -42,10 +32,6 @@ public class Line extends Polygon {
 	@Override
 	public void draw(IDrawVisitor v, boolean hasFill) {
 		v.visit(this);
-	}
-	
-	public void addBridge(Point2D[] bridge) { 
-		this.bridge = bridge;
 	}
 	
 	public static Point2D calcMidpoint(Point2D start, Point2D dest) {
@@ -87,10 +73,6 @@ public class Line extends Polygon {
 	
 	public void setDest(Point2D dest) { this.dest = dest; }
 	public Point2D getDest() { return dest; }
-	public Point2D getMid() { return (coords.length > 2) ? coords[1] : pos; }
-	
-	public Point2D[] getBridge() { return bridge; }
-	public Color getBridgeColor() { return bridgeColor; }
-	public boolean hasGuardPost() { return hasGuardPost; }
+	public Point2D getMid() { return (coords.length > 2) ? coords[1] : dest; }
 
 }

@@ -1,12 +1,10 @@
 package csc2a.px.model.ui;
 
-import java.util.ArrayList;
 import java.util.Random;
 
 import csc2a.px.model.game.GameController;
 import csc2a.px.model.game.GameLoop;
 import csc2a.px.model.game.Map;
-import csc2a.px.model.shape.Polygon;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -28,13 +26,20 @@ public class PracticalPane extends BorderPane {
 	private GameLoop gameLoop;
 	private GameCanvas canvas;
 	private StartPane startPane;
-	public PracticalPane(Image carriageImage) {	
+	public PracticalPane(Image carriageImage, Image startImage) {
+		startPane = new StartPane(startImage, 800, 600);
+		setMinSize(800, 600);
+		setPrefSize(800, 600);
+		setMaxSize(800, 600);
+		setWidth(800);
+		setHeight(600);
+		this.setCenter(startPane);
 		canvas = new GameCanvas();
 
-		controller = new GameController(DEF_C, DEF_ROUTE_C, carriageImage, canvas.getWidth(), canvas.getHeight());
-		gameInfoPane = new GameInfoPane(controller);
+		gameInfoPane = new GameInfoPane();
+		controller = new GameController(DEF_C, DEF_ROUTE_C, carriageImage);
 		canvas.setController(controller);
-
+		
 		gameLoop = new GameLoop() {
 
 			@Override
@@ -55,13 +60,13 @@ public class PracticalPane extends BorderPane {
 
 			@Override
 			public void showHowToPlay() {
-				setLeft(null);
+				setRight(null);
 				setCenter(howToPlayePane);
 			}
 
 			@Override
 			public void showAbout() {
-				setLeft(null);
+				setRight(null);
 				setCenter(aboutPane);
 			}
 
@@ -74,10 +79,10 @@ public class PracticalPane extends BorderPane {
 					errorAlert.setContentText("Please generate or open a map file to continue");
 					errorAlert.showAndWait();
 				} else {
-					setLeft(gameInfoPane);
-					setCenter(canvas);
-					canvas.setLayoutX(0);
-					canvas.setLayoutY(0);
+					setRight(gameInfoPane);
+					canvas.setWidth(PracticalPane.this.getWidth() - gameInfoPane.getWidth());
+					canvas.setHeight(PracticalPane.this.getHeight() - gameMenu.getHeight());
+					setCenter(canvas);;
 					canvas.play();
 					gameLoop.start();
 				}
@@ -85,16 +90,14 @@ public class PracticalPane extends BorderPane {
 
 			@Override
 			public void randomRiver() {
-				canvas.setLayoutX(0);
-				canvas.setLayoutY(0);
-				Random random = new Random();
-				Map map = new Map(DEF_LAND_C, DEF_RIVER_C, this.getScene().getWidth(), 
-						this.getScene().getHeight());
-				ArrayList<Polygon> rivers = Map.generateRandomRivers(DEF_RIVER_C, random.nextInt(2) + 1, 
-						random.nextInt(100 - 45 + 1) + 15, this.getScene().getWidth(), this.getScene().getHeight(), 30);
-				map.setRivers(rivers);
-				setLeft(null);
+				setRight(gameInfoPane);
+				canvas.setWidth(PracticalPane.this.getWidth() - gameInfoPane.getWidth());
+				canvas.setHeight(PracticalPane.this.getHeight() - gameMenu.getHeight());
 				setCenter(canvas);
+				Random random = new Random();
+				Map map = new Map(DEF_LAND_C, DEF_RIVER_C, canvas.getWidth(), 
+						canvas.getHeight());
+				map.generateRandomRivers(random.nextInt(2) + 1, random.nextInt(100 - 45 + 1) + 15, 30);
 				controller.setMap(map);
 				canvas.redrawCanvas();
 			}
@@ -115,8 +118,6 @@ public class PracticalPane extends BorderPane {
 		};
 
 		this.setTop(gameMenu);
-		canvas.bindProperties(this.widthProperty().subtract(gameInfoPane.getWidth()), 
-				this.heightProperty().subtract(gameMenu.getHeight()));
 	}
 
 	public void setKeyHandler(Scene scene) {
@@ -136,17 +137,5 @@ public class PracticalPane extends BorderPane {
 				break;
 			}
 		});
-	}
-
-	public void setNewWidth(double width) {
-		this.setMinWidth(width);
-		this.setPrefWidth(width);
-		this.setMaxWidth(width);
-	}
-
-	public void setNewHeight(double height) {
-		this.setMinHeight(height);
-		this.setPrefHeight(height);
-		this.setMaxHeight(height);
 	}
 }

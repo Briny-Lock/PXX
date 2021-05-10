@@ -33,14 +33,6 @@ public class DrawShapesVisitor implements IDrawVisitor {
 			gc.strokeLine(l.getxCoords()[i - 1], l.getyCoords()[i - 1], l.getxCoords()[i], l.getyCoords()[i]);
 		}
 		
-		if (l.getBridge() != null) {
-			gc.setStroke(l.getBridgeColor());
-			gc.setLineWidth(7);
-			for (int i = 1; i < l.getBridge().length; i++) {
-				gc.strokeLine(l.getBridge()[i - 1].getX(), l.getBridge()[i - 1].getY(), l.getBridge()[i].getX(), l.getBridge()[i].getY());
-			}
-		}
-		
 		gc.stroke();
 	}
 

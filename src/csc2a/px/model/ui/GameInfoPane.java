@@ -22,14 +22,17 @@ public class GameInfoPane extends GridPane {
 	private Label carriageCost;
 	private Label coinPerDelivery;
 	
-	public GameInfoPane(GameController controller) {
+	public GameInfoPane() {
 		ColumnConstraints column1 = new ColumnConstraints();
 	    column1.setPercentWidth(70);
 	    ColumnConstraints column2 = new ColumnConstraints();
 	    column2.setPercentWidth(30);
 	    
 	    this.getColumnConstraints().addAll(column1, column2);
-	    
+	    this.setMinWidth(160);
+	    this.setPrefWidth(160);
+	    this.setMaxWidth(160);
+	    this.setWidth(160);
 		reputationLabel = new Label("Reputation:");
 		coinLabel = new Label("Coin:");
 		routeCostLabel = new Label("Route Cost:");
@@ -38,13 +41,13 @@ public class GameInfoPane extends GridPane {
 		carriageCostLabel = new Label("Carriage Cost:");
 		coinPerDeliveryLabel = new Label("Coin Per Delivery:\t");
 		
-		reputation= new Label(Integer.toString(controller.getReputation()));
-		coin= new Label(Integer.toString(controller.getCoin()));
-		routeCost= new Label(Integer.toString(controller.getRouteCost()));
-		bridgeCost= new Label(Integer.toString(controller.getBridgeCost()));
-		wagonCost= new Label(Integer.toString(controller.getWagonCost()));
-		carriageCost= new Label(Integer.toString(controller.getCarriageCost()));
-		coinPerDelivery = new Label(Integer.toString(controller.getCoinPerDelivery()));
+		reputation= new Label();
+		coin= new Label();
+		routeCost= new Label();
+		bridgeCost= new Label();
+		wagonCost= new Label();
+		carriageCost= new Label();
+		coinPerDelivery = new Label();
 		
 		this.addRow(0, reputationLabel, reputation);
 		this.addRow(1, coinLabel, coin);
@@ -58,5 +61,10 @@ public class GameInfoPane extends GridPane {
 	public void updateInfo(GameController controller) {
 		reputation.setText(Integer.toString(controller.getReputation()));
 		coin.setText(Integer.toString(controller.getCoin()));
+		routeCost.setText(Integer.toString(controller.getRouteCost()));
+		bridgeCost.setText(Integer.toString(controller.getBridgeCost()));
+		wagonCost.setText(Integer.toString(controller.getWagonCost()));
+		carriageCost.setText(Integer.toString(controller.getCarriageCost()));
+		coinPerDelivery.setText(Integer.toString(controller.getCoinPerDelivery()));
 	}
 }

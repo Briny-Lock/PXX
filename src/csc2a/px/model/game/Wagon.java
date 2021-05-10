@@ -11,6 +11,7 @@ import javafx.scene.paint.Color;
 
 public class Wagon {
 	private static final int DEF_MAX_CARRIAGES = 4;
+	private static final int TICKS_TO_TRANSFER = 15;
 	private static final float SPEED = 40f;
 	private static final double DEF_CARR_GAP = 3;
 	
@@ -18,6 +19,7 @@ public class Wagon {
 	private int maxCarriages = DEF_MAX_CARRIAGES;
 	private float rotation;
 	private boolean isForward = true;
+	private float tickCounter = 0;
 	
 	private Color c;
 	private Color defC;
@@ -41,6 +43,15 @@ public class Wagon {
 		this.carriages = new ArrayList<>();
 		this.rotation = 0.0f;
 		addCarriage();
+	}
+	
+	public boolean canTransfer(float deltaTime) {
+		tickCounter += deltaTime + 1;
+		if (tickCounter >= TICKS_TO_TRANSFER) {
+			tickCounter -= TICKS_TO_TRANSFER;
+			return true;
+		}
+		return false;
 	}
 	
 	public boolean addGoods(Shape goods) {

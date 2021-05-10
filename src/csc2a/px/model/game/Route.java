@@ -6,7 +6,6 @@ package csc2a.px.model.game;
 import java.util.ArrayList;
 import java.util.List;
 
-import csc2a.px.model.Common;
 import csc2a.px.model.abstract_factory.ShapeFactory;
 import csc2a.px.model.shape.ESHAPE_TYPE;
 import csc2a.px.model.shape.Line;
@@ -30,7 +29,6 @@ public class Route {
 	private ArrayList<Line> lines;
 	private ArrayList<Wagon> wagons;
 	private ArrayList<Town> towns;
-	private ArrayList<Point2D[]> bridges;
 	private Image carriageImage;
 	private double carrW, carrH;
 	private int coinPerDelivery;
@@ -40,7 +38,6 @@ public class Route {
 	
 	public Route(Color c, Color defC, Image carriageImage, double carrW, double carrH, int coinPerDelivery) {
 		lines = new ArrayList<>();
-		bridges = new ArrayList<>();
 		wagons = new ArrayList<>();
 		towns = new ArrayList<>();
 		factory = new ShapeFactory();
@@ -80,13 +77,6 @@ public class Route {
 		return true;
 	}
 	
-	public boolean linkTowns(Town town1, Town town2, Point2D[] bridge) {
-		if (!linkTowns(town1, town2))
-			return false;
-		bridges.add(bridge);
-		return true;
-	}
-	
 	private int checkTown(Town town) {
 		// If no towns are linked
 		if (towns.size() == 0) {
@@ -123,13 +113,7 @@ public class Route {
 		lines.clear();
 		if (towns.size() > 1) {
 			for (int i = 1; i < towns.size(); i++) {
-				Line line = (Line) factory.createLine(c, towns.get(i - 1).getPos(), 
-						towns.get(i).getPos());
-				for (Point2D[] b : bridges) {
-					if (bridgeOnLine(line, b)) {
-						line.addBridge(b);
-					}
-				}
+				Line line = (Line) factory.createLine(c, towns.get(i - 1).getPos(), towns.get(i).getPos());
 				lines.add(line);					
 			}
 		}
@@ -139,35 +123,7 @@ public class Route {
 		wagons.clear();
 		towns.clear();
 		lines.clear();
-	}
-	
-	private boolean bridgeOnLine(Line line, Point2D[] bridge) {
-		// true if bridge exists on the line, false if not
-		if(bridge.length > 2)
-			if (!(line.getPos().angle(line.getMid()) == bridge[0].angle(bridge[1]) 
-					&& line.getMid().angle(line.getDest()) == bridge[1].angle(bridge[2])))
-				return false;
-			else {
-				if (!(line.getPos().angle(line.getMid()) == bridge[0].angle(bridge[1]) 
-						|| line.getMid().angle(line.getDest()) == bridge[0].angle(bridge[1])))
-					return false;
-			}
-
-		for (Point2D p : bridge) {
-			boolean onLine = false;
-			for (int i = 1; i < line.getCoords().length; i++) {
-				if(Common.isBetween(line.getxCoords()[i - 1], line.getxCoords()[i], p.getX()) && Common.isBetween(line.getyCoords()[i - 1], line.getyCoords()[i], p.getY())) {
-					onLine = true;
-					break;
-				}
-			}
-			if (!onLine)
-				return false;
-		}		
-		return true;
-	}
-	
-	
+	}	
 	
 	public int removeTown(Town town) {
 		for (Town t : towns) {
@@ -194,10 +150,11 @@ public class Route {
 		return true;
 	}
 	
-	public void update(int coin, float deltaTime) {
+	public int update(float deltaTime) {
+		int coin = 0;
 		for (Wagon wagon : wagons) {
 			if (wagon.getPos().equals(wagon.getDest())) {
-				processGoods(coin, wagon);
+				coin += processGoods(wagon, deltaTime);
 			} else {
 				wagon.move(deltaTime);
 			}
@@ -206,7 +163,7 @@ public class Route {
 		ArrayList<Town> trueRemove = new ArrayList<>();
 		for (Town town : toRemove) {
 			boolean removable = true;
-			int index = -1;
+			int index = towns.indexOf(town);
 			for (Wagon wagon : wagons) {
 				if (wagon.isForward())
 					index = towns.indexOf(town);
@@ -216,8 +173,14 @@ public class Route {
 					removable = false;
 					break;
 				}
+				if (index == -1) {
+					removable = true;
+					break;
+				}
 				Point2D mid = lines.get(index).getMid();
-				if (wagon.getDest().equals(town.getPos()) || wagon.getDest().equals(mid)) {
+				Point2D start = lines.get(index).getPos();
+				if (wagon.getDest().equals(town.getPos()) || wagon.getDest().equals(mid) 
+						|| wagon.getDest().equals(start)) {
 					removable = false;
 					break;
 				}
@@ -232,6 +195,7 @@ public class Route {
 		for (Town town : trueRemove) {
 			toRemove.remove(town);
 		}
+		return coin;
 	}
 	
 	public void draw(IDrawVisitor v) {
@@ -243,37 +207,40 @@ public class Route {
 		}
 	}
 	
-	private void processGoods(int coin, Wagon wagon) {
+	private int processGoods(Wagon wagon, float deltaTime) {
+		int coin = 0;
 		for (int i = 0; i < towns.size(); i++) {
 			Town t = towns.get(i);
 			if (t.getPos().equals(wagon.getPos())) {
-				if (wagon.isForward() && t == towns.get(towns.size() - 1)) {
-					wagon.setForward(false);
-				} else if (!wagon.isForward() && t == towns.get(0)) {					
-					wagon.setForward(true);
-				}
-				Shape goods = wagon.deliverGoods(t.getWantedGoods());
-				if (goods == null) {
-					ArrayList<ESHAPE_TYPE> predictedGoods;
-					if (wagon.isForward()) {
-						predictedGoods = predictGoods(towns.subList(i, towns.size()));
-					} else {						
-						predictedGoods = predictGoods(towns.subList(0, i));
+				if (wagon.canTransfer(deltaTime)) {
+					if (wagon.isForward() && t == towns.get(towns.size() - 1)) {
+						wagon.setForward(false);
+					} else if (!wagon.isForward() && t == towns.get(0)) {					
+						wagon.setForward(true);
 					}
-					Shape toGo = t.removeGoods(predictedGoods);
-					if (toGo == null) {
-						if (wagon.isForward())
-							wagon.setDest(lines.get(i).getCoords()[1]);
-						else
-							wagon.setDest(lines.get(i - 1).getMid());	
-					} else
-						wagon.addGoods(toGo);
+					Shape goods = wagon.deliverGoods(t.getWantedGoods());
+					if (goods == null) {
+						ArrayList<ESHAPE_TYPE> predictedGoods;
+						if (wagon.isForward()) {
+							predictedGoods = predictGoods(towns.subList(i, towns.size()));
+						} else {						
+							predictedGoods = predictGoods(towns.subList(0, i));
+						}
+						Shape toGo = t.removeGoods(predictedGoods);
+						if (toGo == null) {
+							if (wagon.isForward())
+								wagon.setDest(lines.get(i).getCoords()[1]);
+							else
+								wagon.setDest(lines.get(i - 1).getMid());	
+						} else
+							wagon.addGoods(toGo);
+					}
+					else {
+						if (t.addGoods(goods))
+							coin += coinPerDelivery;
+					}
 				}
-				else {
-					if (t.addGoods(goods))
-						coin += coinPerDelivery;
-				}
-				return;
+				return coin;
 			}
 		}
 		
@@ -284,9 +251,10 @@ public class Route {
 					wagon.setDest(l.getDest());
 				else
 					wagon.setDest(l.getPos());
-				return;
+				break;
 			}
 		}
+		return coin;
 	}
 	
 	private ArrayList<ESHAPE_TYPE> predictGoods(List<Town> towns) {

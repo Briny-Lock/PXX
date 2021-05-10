@@ -10,7 +10,7 @@ import javafx.scene.paint.Color;
 public class Town {
 	private static final float DEF_GOODS_SPACE = 6f;
 	private static final int DEF_MAX_GOODS = 7;
-	private static final int TICKS_TO_GOODS = 200;
+	private static final int TICKS_TO_GOODS = 150;
 	
 	private Point2D pos;
 	private Shape shape;
@@ -102,10 +102,20 @@ public class Town {
 		}
 	}
 	
+	public void setWantedGoods(ArrayList<ESHAPE_TYPE> wantedGoods) {
+		if (wantedGoods.contains(this.shape.getType())) {
+			this.wantedGoods = wantedGoods;
+		} else {
+			this.wantedGoods = new ArrayList<>();
+			this.wantedGoods.add(this.shape.getType());
+			this.wantedGoods.addAll(wantedGoods);
+		}
+	}
+	
 	public ArrayList<ESHAPE_TYPE> getWantedGoods() { return wantedGoods; }
 	public Point2D getPos() { return pos; }
 	public Shape getShape() { return shape; }
-	public int getReputationLoss() { return (storedGoods.size() < DEF_MAX_GOODS) ? 0 : storedGoods.size() - DEF_MAX_GOODS; }
+	public int getReputationLoss() { return (storedGoods.size() <= DEF_MAX_GOODS) ? 0 : storedGoods.size() - DEF_MAX_GOODS; }
 	
 	@Override
 	public boolean equals(Object obj) {

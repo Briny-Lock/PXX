@@ -2,8 +2,6 @@ package csc2a.px.model.ui;
 
 import csc2a.px.model.game.GameController;
 import csc2a.px.model.visitor.DrawShapesVisitor;
-import javafx.beans.binding.DoubleBinding;
-import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.input.MouseButton;
@@ -15,10 +13,7 @@ public class GameCanvas extends Canvas {
 	private boolean isDragged = false;
 	private boolean isPaused = true;
 	
-	public GameCanvas() {
-		setWidth(500);
-		setHeight(500);
-		
+	public GameCanvas() {		
 		visitor = new DrawShapesVisitor();
 		visitor.setGc(getGraphicsContext2D(), this.getWidth(), this.getHeight());
 		
@@ -53,11 +48,6 @@ public class GameCanvas extends Canvas {
 				}
 			}
 		});
-	}
-	
-	public void bindProperties(DoubleBinding widthBinding, DoubleBinding heightBinding) {
-		widthProperty().bind(widthBinding);
-		heightProperty().bind(heightBinding);
 	}
 	
 	public void redrawCanvas() {
@@ -103,16 +93,22 @@ public class GameCanvas extends Canvas {
 					break;
 				case DIGIT1:
 					controller.setCurrentRoute(1);
+					break;
 				case DIGIT2:
 					controller.setCurrentRoute(2);
+					break;
 				case DIGIT3:
 					controller.setCurrentRoute(3);
+					break;
 				case DIGIT4:
 					controller.setCurrentRoute(4);
+					break;
 				case DIGIT5:
 					controller.setCurrentRoute(5);
+					break;
 				case DIGIT6:
 					controller.setCurrentRoute(6);
+					break;
 				default:
 					break;
 				}
@@ -122,10 +118,5 @@ public class GameCanvas extends Canvas {
 
 	public void pause() {
 		this.isPaused = true;
-	}
-
-	public void bindProperties(ReadOnlyDoubleProperty widthBinding, DoubleBinding heightBinding) {
-		widthProperty().bind(widthBinding);
-		heightProperty().bind(heightBinding);
 	}
 }

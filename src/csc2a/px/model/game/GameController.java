@@ -16,11 +16,12 @@ import javafx.scene.paint.Color;
 
 public class GameController {
 	private static final int NUM_ROUTES = 6;
-	private static final int TICKS_TO_NEW_TOWN = 1000;
+	private static final int TICKS_TO_NEW_TOWN = 400;
 	private static final int CARR_W = 10;
 	private static final int CARR_H = 20;
 	private static final int START_COIN = 10000;
 	private static final int START_REP = 10;
+	private static final int BORDER_ADJUSTMENT = 40;
 	
 	
 	private Color defC;
@@ -34,7 +35,6 @@ public class GameController {
 	private ArrayList<Town> towns;
 	private AbstractFactory<Shape> factory;
 	private ArrayList<ESHAPE_TYPE> availableShapes;
-	private ArrayList<ESHAPE_TYPE> unusedShapes;
 	private ArrayList<Integer> chances;
 	private double ww;
 	private double wh;
@@ -48,11 +48,11 @@ public class GameController {
 	private int bridgeCost = 40;
 	private int wagonCost = 20;
 	private int carriageCost = 15;
-	private int coinPerDelivery = 2;
+	private int coinPerDelivery = 1;
 	
 	private EGAME_STATE gameState = EGAME_STATE.CONTINUE;
 	
-	public GameController(Color defC, Color[] routeColors, Image carriageImage, double ww, double wh) {
+	public GameController(Color defC, Color[] routeColors, Image carriageImage) {
 		this.defC = defC;
 		this.routeColors = routeColors;
 		factory = new ShapeFactory();
@@ -63,10 +63,6 @@ public class GameController {
 				routes[i].setUnlocked(true);
 		}
 		setCurrentRoute(1);
-		this.ww = ww;
-		this.wh = wh;
-		unusedShapes = new ArrayList<>();
-		unusedShapes.add(ESHAPE_TYPE.CROSS);
 	}
 
 	public void initTowns() {
@@ -77,18 +73,24 @@ public class GameController {
 			int failSafe = 0;
 			Point2D point;
 			boolean isTaken = false;
-			boolean inRiver = false;			
+			boolean valid = true;			
 			do {
 				isTaken = false;
+				valid = true;
 				failSafe++;
 				Point2D[] drawable = map.getDrawable();
 				point = getRandPos(drawable[0], drawable[1]);
+				if (((point.getX() - BORDER_ADJUSTMENT) < 0) || ((point.getX() + BORDER_ADJUSTMENT) > ww))
+					valid = false;
+				if (((point.getY() - BORDER_ADJUSTMENT) < 0) || ((point.getY() + BORDER_ADJUSTMENT) > wh))
+					valid = false;
+				if (map.inRiver(point))
+					valid = false;
 				for (Point2D p : points) {
 					if (p.distance(point) < townSize + 10)
 						isTaken = true;
 				}
-				inRiver = map.inRiver(point);
-				if (!isTaken && !inRiver) {
+				if (!isTaken && valid) {
 					points.add(point);
 					if (points.size() == 3) {
 						done = true;
@@ -96,9 +98,9 @@ public class GameController {
 				} else if (failSafe >= 200) {
 					points.clear();
 					failSafe = 0;
-					map.calcDrawable(getRandPos(new Point2D(0, 0), new Point2D(ww, wh)));
+					map.calcDrawable(getRandPos(new Point2D(1, 1), new Point2D(ww, wh)));
 				}
-			} while (isTaken || inRiver);
+			} while (isTaken || !valid);
 		}
 		towns.add(new Town(factory.createCircle(defC, points.get(0), townSize/2), townSize, defC));
 		chances.add(1);
@@ -112,8 +114,7 @@ public class GameController {
 		Random random = new Random();
 		Point2D point = new Point2D(random.nextInt((int) (p2.getX() - p1.getX()) + 1) + (int) p1.getX(), 
 				random.nextInt((int) (p2.getY() - p1.getY()) + 1) + (int) p1.getY());
-		return new Point2D((point.getX() < p1.getX()) ? p1.getX() : Math.min(p2.getX(), point.getX()), 
-						(point.getY() < p1.getY()) ? p1.getY() : Math.min(p2.getY(), point.getY()));
+		return point;
 	}
 	
 	public Shape createGoods(ESHAPE_TYPE type, Point2D pos) {
@@ -174,19 +175,14 @@ public class GameController {
 			for (int i : chances) {
 				total += i;
 			}
-			boolean newType = true;
-			int rng = random.nextInt(total + 1) + 1;
+			int rng = random.nextInt(total) + 1;
 			int buffer = 0;
 			for (int i = 0; i < chances.size(); i++) {
 				buffer += chances.get(i);
 				if (rng == buffer) {
 					addTown(availableShapes.get(i));
-					newType = false;
 					break;
 				}
-			}
-			if (newType) {
-				addTown(unusedShapes.get(random.nextInt(unusedShapes.size())));
 			}
 		}
 		
@@ -212,7 +208,7 @@ public class GameController {
 		}
 		
 		for (Route route : routes) {
-			route.update(coin, deltaTime);
+			coin += route.update(deltaTime);
 		}
 	}
 
@@ -228,17 +224,23 @@ public class GameController {
 		boolean isTaken;
 		Point2D pos = null;
 		Point2D[] drawable = map.getDrawable();
-		boolean inRiver = true;
+		boolean valid = true;
 		ArrayList<Point2D> points = getTownPos();
 		do {
+			valid = true;
 			isTaken = false;
 			pos = getRandPos(drawable[0], drawable[1]);
-			inRiver = map.inRiver(pos);
+			if (((pos.getX() - BORDER_ADJUSTMENT) < 0) || (pos.getX() + BORDER_ADJUSTMENT > ww))
+				valid = false;
+			if (((pos.getY() - BORDER_ADJUSTMENT) < 0) || (pos.getY() + BORDER_ADJUSTMENT > wh))
+				valid = false;
+			if (map.inRiver(pos))
+					valid = false;
 			for (Point2D p : points) {
 				if (pos.distance(p) < townSize + 10)
 					isTaken = true;
 			}
-		} while (isTaken || inRiver);
+		} while (isTaken || !valid);
 		
 		switch(type) {
 		case CIRCLE:
@@ -274,12 +276,16 @@ public class GameController {
 
 	public void linkTowns(Point2D p1, Point2D p2) {
 		if (isNearTown(p1) && isNearTown(p2) && routes[currentRoute].isUnlocked()) {
-			Point2D[] bridge = map.getBridge(p1, p2);
-			if (bridge != null) {
-				routes[currentRoute].linkTowns(getNearestTown(p1), getNearestTown(p2), bridge);
-			} else {
-				routes[currentRoute].linkTowns(getNearestTown(p1), getNearestTown(p2));
+			if (map.hasBridge(p1, p2)) {
+				System.out.println("Has Bridge");
+				if (coin < bridgeCost)
+					return;
+				else if (routes[currentRoute].linkTowns(getNearestTown(p1), getNearestTown(p2))) {
+					coin -= bridgeCost;
+					return;
+				}
 			}
+			routes[currentRoute].linkTowns(getNearestTown(p1), getNearestTown(p2));
 		}
 	}
 
@@ -392,7 +398,10 @@ public class GameController {
 				if (!route.isUnlocked()) {
 					coin -= routeCost;
 					route.setUnlocked(true);
+					return;
 				}
+				if (route == routes[currentRoute])
+					setCurrentRoute(currentRoute + 1); 
 			}
 	}
 
@@ -419,8 +428,8 @@ public class GameController {
 	public void setCurrentRoute(int routeCounter) {
 		if (Common.isBetween(1, routes.length + 1, routeCounter))
 			currentRoute = routeCounter - 1;
-		System.out.println(currentRoute);
-		colorCircle = new Circle(getCurrentColor(), new Point2D(ww - 15, wh - 15), 10);
+		colorCircle = new Circle((routes[currentRoute].isUnlocked()) ? getCurrentColor() : Color.GRAY, 
+				new Point2D(ww - 15, wh - 15), 10);
 	}
 	
 	public void setSize(double w, double h) {
@@ -429,6 +438,7 @@ public class GameController {
 	}
 	
 	public void reset() {
+		setSize(map.getWw(), map.getWh());
 		availableShapes = new ArrayList<>();
 		initAvailableShapes();
 		chances = new ArrayList<>();
@@ -443,7 +453,6 @@ public class GameController {
 		}
 		coin = START_COIN;
 		reputation = START_REP;
-		unusedShapes = new ArrayList<>();
-		unusedShapes.add(ESHAPE_TYPE.CROSS);
+		setCurrentRoute(1);
 	}
 }
