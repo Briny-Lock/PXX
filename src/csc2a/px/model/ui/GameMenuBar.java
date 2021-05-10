@@ -3,7 +3,6 @@ package csc2a.px.model.ui;
 import java.io.File;
 import java.util.Optional;
 import csc2a.px.model.file.MapFileHandler;
-import csc2a.px.model.game.GameController;
 import csc2a.px.model.game.Map;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
@@ -18,7 +17,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 
 public abstract class GameMenuBar extends MenuBar {	
-	public GameMenuBar(GameController controller) {
+	public GameMenuBar() {
 		
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setInitialDirectory(new File("data"));
@@ -26,14 +25,15 @@ public abstract class GameMenuBar extends MenuBar {
 		Menu fileMenu = new Menu("_File");
 		
 		MenuItem openMapFile = new MenuItem("_Open Map File");
+		openMapFile.setAccelerator(KeyCombination.keyCombination("shortcut+o"));
 		openMapFile.setOnAction(event -> {
 			fileChooser.setTitle("Select a map file to open");
-			fileChooser.getExtensionFilters().add(new ExtensionFilter("Map", "*.map"));
+			fileChooser.getExtensionFilters().add(new ExtensionFilter("Binary Map", "*.bmap"));
 			File fileToOpen = fileChooser.showOpenDialog(this.getScene().getWindow());
 			if (fileToOpen != null) {
 				Map map = MapFileHandler.readMapFromFile(fileToOpen);
 				if (map != null) {
-					controller.setMap(map);
+					addMap(map);
 				} else {
 					Alert errorAlert = new Alert(AlertType.ERROR);
 					errorAlert.setHeaderText("Invalid file format");
@@ -48,15 +48,14 @@ public abstract class GameMenuBar extends MenuBar {
 			}
 		});
 		MenuItem saveMapFile = new MenuItem("_Save Map File");
+		saveMapFile.setAccelerator(KeyCombination.keyCombination("shortcut+s"));
 		saveMapFile.setOnAction(event -> {
 			fileChooser.setTitle("Save Map");
-			fileChooser.getExtensionFilters().add(new ExtensionFilter("Map", "*.map"));
+			fileChooser.getExtensionFilters().add(new ExtensionFilter("Binary Map", "*.bmap"));
 			System.out.println(this.getScene().getWindow());
-			File fileToSave = fileChooser.showOpenDialog(this.getScene().getWindow());
+			File fileToSave = fileChooser.showSaveDialog(this.getScene().getWindow());
 			if (fileToSave != null) {
-				if (!MapFileHandler.saveMapToFile(controller.getMap(), fileToSave)) {
-					
-				} else {
+				if (!MapFileHandler.saveMapToFile(getMap(), fileToSave)) {
 					Alert errorAlert = new Alert(AlertType.ERROR);
 					errorAlert.setHeaderText("Error saving file");
 					errorAlert.setContentText("An unexpected error occured causing the file to not save properly");
@@ -75,6 +74,7 @@ public abstract class GameMenuBar extends MenuBar {
 			randomRiver();
 		});
 		MenuItem exitItem = new MenuItem("E_xit"); 
+		exitItem.setAccelerator(KeyCombination.keyCombination("shortcut+x"));
 		exitItem.setOnAction(event -> {
 			Alert confirmAlert = new Alert(AlertType.CONFIRMATION);
 			confirmAlert.setHeaderText("Exit Application");
@@ -82,22 +82,24 @@ public abstract class GameMenuBar extends MenuBar {
 			Optional<ButtonType> response = confirmAlert.showAndWait();;
 			if (response.get() == ButtonType.OK) {
 				Platform.exit();
-			}
-			
+			}			
 		});
 		
 		fileMenu.getItems().addAll(openMapFile, saveMapFile, randomizeMap, new SeparatorMenuItem(), exitItem);
 		
 		Menu gameMenu = new Menu("_Game");
 		MenuItem play = new MenuItem("_Play");
+		play.setAccelerator(KeyCombination.keyCombination("shortcut+p"));
 		play.setOnAction(event -> {
 			start();
 		});
-		MenuItem stop = new MenuItem("_Play");
+		MenuItem stop = new MenuItem("S_top");
+		stop.setAccelerator(KeyCombination.keyCombination("shortcut+t"));
 		stop.setOnAction(event -> {
 			stop();
 		});
 		MenuItem howToPlay = new MenuItem("_How To Play");
+		howToPlay.setAccelerator(KeyCombination.keyCombination("shortcut+h"));
 		howToPlay.setOnAction(event -> {
 			showHowToPlay();
 		});
@@ -119,5 +121,7 @@ public abstract class GameMenuBar extends MenuBar {
 	public abstract void stop();
 	public abstract void showHowToPlay();
 	public abstract void showAbout();
+	public abstract void addMap(Map map);
 	public abstract void randomRiver();
+	public abstract Map getMap();
 }

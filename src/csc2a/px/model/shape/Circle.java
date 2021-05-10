@@ -20,4 +20,10 @@ public class Circle extends Shape {
 
 	public double getR() { return r; }
 	public Point2D getRefPos() { return new Point2D(pos.getX() - r, pos.getY() - r); }
+	
+	@Override
+	public void setSize(double size) {
+		super.setSize(size);
+		r = size/2;
+	}
 }

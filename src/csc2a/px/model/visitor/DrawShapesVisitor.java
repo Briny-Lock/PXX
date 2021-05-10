@@ -92,6 +92,7 @@ public class DrawShapesVisitor implements IDrawVisitor {
 		transformContext(c);
 		gc.drawImage(c.getCarriageImage(), c.getRefPos().getX(), c.getRefPos().getY(), c.getW(), c.getH());
 		gc.restore();
+		clear();
 	}
 	
 	public void clear() {

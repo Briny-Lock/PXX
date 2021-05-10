@@ -22,4 +22,10 @@ public class Rectangle extends Shape {
 	public double getW() { return w; }
 	public double getH() { return h; }
 
+	@Override
+	public void setSize(double size) {
+		super.setSize(size);
+		w = size;
+		h = size;
+	}
 }

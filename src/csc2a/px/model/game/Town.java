@@ -8,13 +8,14 @@ import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 
 public class Town {
-	private static final float DEF_GOODS_SPACE = 3f;
+	private static final float DEF_GOODS_SPACE = 6f;
 	private static final int DEF_MAX_GOODS = 7;
-	private static final int DEF_TOWN_SIZE = 20;
 	private static final int TICKS_TO_GOODS = 200;
 	
 	private Point2D pos;
 	private Shape shape;
+	private double townSize;
+	private Color defC;
 	
 	private int tickCounter;
 	private float tickCorrection;
@@ -22,10 +23,13 @@ public class Town {
 	private ArrayList<Shape> storedGoods;
 	private ArrayList<ESHAPE_TYPE> wantedGoods;
 	
-	public Town(Shape shape) {
+	public Town(Shape shape, double townSize, Color defC) {
 		this.tickCounter = 0;
 		this.tickCorrection = 0;
 		this.shape = shape;
+		this.townSize = townSize;
+		shape.setSize(townSize);
+		this.defC = defC;
 		this.pos = shape.getPos();
 		storedGoods = new ArrayList<>();
 		wantedGoods = new ArrayList<>();
@@ -34,7 +38,6 @@ public class Town {
 	
 	public boolean addGoods(Shape goods) {
 		if (goods.getType() == this.shape.getType()) {
-			System.out.println("Delivered goods");
 			return true;
 		}
 		storedGoods.add(goods);
@@ -63,7 +66,6 @@ public class Town {
 				if (g.getType() == type) {
 					storedGoods.remove(g);
 					renderGoods();
-					System.out.println("Removed Goods");
 					return g;
 				}
 			}
@@ -72,14 +74,15 @@ public class Town {
 	}
 	
 	private void renderGoods() {
-		Point2D prevPos = pos.add(DEF_TOWN_SIZE, 0);
+		Point2D prevPos = pos.add(townSize/2, -3);
 		for (int i = 0; i < storedGoods.size(); i++) {
+			storedGoods.get(i).setSize(5);
 			storedGoods.get(i).setPos(prevPos.add(DEF_GOODS_SPACE, 0));
 			prevPos = storedGoods.get(i).getPos();
 			if (i > DEF_MAX_GOODS) {
 				storedGoods.get(i).setC(Color.RED);
 			} else {
-				storedGoods.get(i).setC(Color.GRAY);
+				storedGoods.get(i).setC(defC);
 			}
 		}
 	}
@@ -90,12 +93,12 @@ public class Town {
 	}
 	
 	public void drawTown(IDrawVisitor v) {
-		shape.draw(v, true);		
+		shape.draw(v, false);		
 	}
 	
 	public void drawGoods(IDrawVisitor v) {
 		for (Shape shape : storedGoods) {
-			shape.draw(v, false);
+			shape.draw(v, true);
 		}
 	}
 	

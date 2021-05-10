@@ -7,6 +7,8 @@ import csc2a.px.model.game.GameController;
 import csc2a.px.model.game.GameLoop;
 import csc2a.px.model.game.Map;
 import csc2a.px.model.shape.Polygon;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
@@ -39,12 +41,12 @@ public class PracticalPane extends BorderPane {
 			}
 		};
 
-		
-		gameMenu = new GameMenuBar(controller) {
+		gameMenu = new GameMenuBar() {
 			
 			@Override
 			public void stop() {
-				gameLoop.stop();				
+				gameLoop.stop();
+				canvas.pause();				
 			}
 			
 			@Override
@@ -61,9 +63,18 @@ public class PracticalPane extends BorderPane {
 			
 			@Override
 			public void start() {
-				setLeft(gameInfoPane);
-				setCenter(canvas);
-				gameLoop.start();
+				canvas.clear();
+				if (controller.getMap() == null) {
+					Alert errorAlert = new Alert(AlertType.WARNING);
+					errorAlert.setHeaderText("No map specified");
+					errorAlert.setContentText("Please generate or open a map file to continue");
+					errorAlert.showAndWait();
+				} else {
+					setLeft(gameInfoPane);
+					setCenter(canvas);
+					canvas.play();
+					gameLoop.start();
+				}
 			}
 
 			@Override
@@ -76,8 +87,24 @@ public class PracticalPane extends BorderPane {
 				controller.setMap(map);
 				canvas.redrawCanvas();
 			}
+
+			@Override
+			public void addMap(Map map) {
+				canvas.clear();
+				controller.setMap(map);
+				setLeft(null);
+				setCenter(canvas);
+				canvas.redrawCanvas();
+			}
+
+			@Override
+			public Map getMap() {
+				return controller.getMap();
+			}
 		};
 		
 		this.setTop(gameMenu);
+		
+		
 	}
 }

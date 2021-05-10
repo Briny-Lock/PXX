@@ -5,12 +5,9 @@ import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 
 public class Triangle extends Polygon {
-	private double size;
-
 	public Triangle(Color c, Point2D refPos, double size) {
 		super(c, ESHAPE_TYPE.TRIANGLE, refPos);
-
-		this.size = size;
+		setSize(size);
 		coords = new Point2D[3];
 		calcCoords();
 	}
@@ -26,6 +23,4 @@ public class Triangle extends Polygon {
 	public void draw(IDrawVisitor v, boolean hasFill) {
 		v.visit(this, hasFill);
 	}
-
-	public double getSize() { return size; }
 }

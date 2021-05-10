@@ -20,6 +20,7 @@ public abstract class Shape implements IDrawable{
 	protected Point2D pos;
 	protected Color c;
 	protected ESHAPE_TYPE type;
+	protected double size;
 	
 	public Shape(Color c, ESHAPE_TYPE type, Point2D pos) {
 		this.c = c;
@@ -53,4 +54,6 @@ public abstract class Shape implements IDrawable{
 	
 	public Point2D getPos() { return pos; }
 	public void setPos(Point2D pos) { this.pos = pos; }
+	public void setSize(double size) { this.size = size; }
+	public double getSize() { return size; }
 }

@@ -3,11 +3,16 @@ package csc2a.px.model.ui;
 import csc2a.px.model.game.GameController;
 import csc2a.px.model.visitor.DrawShapesVisitor;
 import javafx.beans.property.DoubleProperty;
+import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.input.MouseButton;
 
 public class GameCanvas extends Canvas {
 	private DrawShapesVisitor visitor;
 	private GameController controller;
+	private Point2D dragStart, dragEnd;
+	private boolean isDragged = false;
+	private boolean isPaused = true;
 	
 	public GameCanvas() {
 		setWidth(500);
@@ -16,28 +21,107 @@ public class GameCanvas extends Canvas {
 		visitor = new DrawShapesVisitor();
 		visitor.setGc(getGraphicsContext2D(), this.getWidth(), this.getHeight());
 		
-		setOnMouseDragged(event -> {
-			
+		setOnMousePressed(event -> {
+			if (!isPaused) {
+				if (event.getButton() == MouseButton.PRIMARY)
+					dragStart = new Point2D(event.getX(), event.getY());
+			}
 		});
 		
-		setOnMouseDragOver(event -> {
-					
+		setOnMouseDragged(event -> {
+			if (!isPaused) {
+				if (event.getButton() == MouseButton.PRIMARY)
+					dragEnd = new Point2D(event.getX(), event.getY());
+				else
+					dragEnd = null;
+				isDragged = true;
+			}
 		});
 
-		setOnMouseDragReleased(event -> {
-			
+		setOnMouseReleased(event -> {
+			if (!isPaused) {
+				isDragged = false;
+				if (event.getButton() == MouseButton.PRIMARY) {
+					Point2D dragEnd = new Point2D(event.getX(), event.getY());
+					if (controller.isNearTown(dragStart) && controller.isNearTown(dragEnd)) {
+						controller.linkTowns(dragStart, dragEnd);
+					}
+				} else if (event.getButton() == MouseButton.SECONDARY) {
+					Point2D pos = new Point2D(event.getX(), event.getY());
+					controller.removeTown(pos);
+				}
+			}
 		});
 	}
 	
 	public void bindProperties(DoubleProperty widthProperty, DoubleProperty heightProperty) {
-		widthProperty.bind(widthProperty);
-		heightProperty.bind(heightProperty);
+		widthProperty().bind(widthProperty);
+		heightProperty().bind(heightProperty);
 	}
 	
 	public void redrawCanvas() {
 		visitor.setGc(getGraphicsContext2D(), this.getWidth(), this.getHeight());
+		if(isDragged)
+			drawDragLine();
 		controller.draw(visitor);
 	}
 	
+	public void drawDragLine() {
+		if (!isPaused) {
+			if (controller.isNearTown(dragStart)) {
+				getGraphicsContext2D().setLineWidth(3);
+				getGraphicsContext2D().setStroke(controller.getCurrentColor());
+				getGraphicsContext2D().strokeLine(dragStart.getX(), dragStart.getY(), dragEnd.getX(), dragEnd.getY());
+				getGraphicsContext2D().stroke();
+			}
+		}
+	}
+	
+	public void clear() {
+		getGraphicsContext2D().clearRect(0, 0, getWidth(), getHeight());
+	}
+	
 	public void setController(GameController controller) { this.controller = controller; }
+
+	public void play() {
+		setKeyHandler();
+		this.isPaused = false;
+	}
+
+	private void setKeyHandler() {
+		this.getScene().setOnKeyPressed(event -> {
+			System.out.println("Here: " + event.getCode());
+			if (!isPaused) {
+				switch (event.getCode()) {
+				case Q:
+					controller.purchaseRoute();
+					break;
+				case W:
+					controller.addWagon();
+					break;
+				case E:
+					controller.addCarriage();
+					break;
+				case DIGIT1:
+					controller.setCurrentRoute(1);
+				case DIGIT2:
+					controller.setCurrentRoute(2);
+				case DIGIT3:
+					controller.setCurrentRoute(3);
+				case DIGIT4:
+					controller.setCurrentRoute(4);
+				case DIGIT5:
+					controller.setCurrentRoute(5);
+				case DIGIT6:
+					controller.setCurrentRoute(6);
+				default:
+					break;
+				}
+			}
+		});
+	}
+
+	public void pause() {
+		this.isPaused = true;
+	}
 }

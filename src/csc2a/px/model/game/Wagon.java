@@ -137,4 +137,5 @@ public class Wagon {
 	public Point2D getDest() { return dest; }
 	public void setForward(boolean isForward) { this.isForward = isForward; }
 	public boolean isForward() { return isForward; }
+	public int getCarriageCount() { return carriages.size(); }
 }

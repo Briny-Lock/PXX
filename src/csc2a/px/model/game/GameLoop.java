@@ -42,4 +42,6 @@ public abstract class GameLoop extends AnimationTimer {
 	}
 
 	public abstract void tick(float deltaTime);
+	
+	public boolean isPaused() { return isPaused; }
 }

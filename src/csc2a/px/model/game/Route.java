@@ -52,20 +52,30 @@ public class Route {
 	}
 	
 	public boolean linkTowns(Town town1, Town town2) {
+		if (town1 == null || town2 == null)
+			return false;
+		if (town1.equals(town2))
+			return false;
 		int check = checkTown(town1);
-		if (check < 0) {
-			check = checkTown(town2);
-			if (check < 0)
-				return false;
-			addTown(town1, check - 1);
-			return true;
-		}
-		if (check == 0) {
+		if (check == -1) {
 			addTown(town1, 0);
 			addTown(town2, 1);
+			System.out.printf("Linked %s and %s\n", town1.getShape().getType(), town2.getShape().getType());
 			return true;
 		}
-		addTown(town2, check);
+		if (check == -2) {
+			check = checkTown(town2);
+			if (check == -2)
+				return false;
+			addTown(town1, check - 1);
+			System.out.printf("Linked %s and %s\n", town1.getShape().getType(), town2.getShape().getType());
+			return true;
+		}
+		if (checkTown(town2) >= 0)
+			return false;
+		addTown(town2, check + 1);
+
+		System.out.printf("Linked %s and %s\n", town1.getShape().getType(), town2.getShape().getType());
 		return true;
 	}
 	
@@ -79,7 +89,7 @@ public class Route {
 	private int checkTown(Town town) {
 		// If no towns are linked
 		if (towns.size() == 0) {
-			return 0;
+			return -1;
 		}
 		// Test if town exists in line
 		for (int i = 0; i < towns.size(); i++) {
@@ -87,25 +97,26 @@ public class Route {
 				return i; // town was found at position i
 			}
 		}
-		return -1; // town was not found
+		return -2; // town was not found
 	}
 	
 	public void addTown(Town town, int index) {
-		if (towns.size() < 1) {
+		if (towns.size() < 1 || index == towns.size()) {
 			towns.add(town);
-		} else if (index == towns.size()) {
-			towns.add(town);
-		} else if (index == 0) {
+			System.out.printf("Added %s at index %d\n", town.getShape().getType(), index);
+		} else if (index <= 0) {
 			ArrayList<Town> temp = new ArrayList<>();
 			temp.add(town);
 			temp.addAll(towns);
 			towns = temp;
-		} else {
+			System.out.printf("Added %s at index %d\n", town.getShape().getType(), index);
+		} else if (index < towns.size()) {
 			List<Town> preTown	= towns.subList(0, index + 1);
 			List<Town> postTown	= towns.subList(index, towns.size() - 1);
 			towns = new ArrayList<>(preTown);
 			towns.add(town);
 			towns.addAll(postTown);
+			System.out.printf("Added %s at index %d\n", town.getShape().getType(), index);
 		}
 		renderLines();
 	}
@@ -124,6 +135,12 @@ public class Route {
 				lines.add(line);					
 			}
 		}
+	}
+	
+	public void clear() {
+		wagons.clear();
+		towns.clear();
+		lines.clear();
 	}
 	
 	private boolean bridgeOnLine(Line line, Point2D[] bridge) {
@@ -155,9 +172,13 @@ public class Route {
 	
 	
 	public void removeTown(Town town) {
+		System.out.println("Removing town");
 		for (Town t : towns) {
 			if (t.equals(town)) {
 				towns.remove(t);
+				renderLines();
+				if (towns.size() < 2)
+					towns.clear();
 				return;
 			}
 		}
@@ -259,5 +280,22 @@ public class Route {
 
 	public void setUnlocked(boolean isUnlocked) {
 		this.isUnlocked = isUnlocked;
+	}
+	
+	public Color getC() {
+		return c;
+	}
+
+	public boolean addCarriage() {
+		int leastCarriages = 100, index = -1;
+		for (int i = 0; i < wagons.size(); i++) {
+			if (wagons.get(i).getCarriageCount() < leastCarriages) {
+				leastCarriages = wagons.get(i).getCarriageCount();
+				index = i;
+			}
+		}
+		if (index == -1)
+			return false;		
+		return wagons.get(index).addCarriage();
 	}
 }

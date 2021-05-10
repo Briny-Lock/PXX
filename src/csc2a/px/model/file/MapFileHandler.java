@@ -33,12 +33,14 @@ public class MapFileHandler {
 			int r = reader.readInt();
 			int g = reader.readInt();
 			int b = reader.readInt();
+			System.out.printf("%d:%d:%d\n", r, g, b);
 			Color landC = Color.rgb(r, g, b);
 			
 			// Read Color Data for river
 			r = reader.readInt();
 			g = reader.readInt();
 			b = reader.readInt();
+			System.out.printf("%d:%d:%d\n", r, g, b);
 			Color riverC = Color.rgb(r, g, b);
 
 			// Read Number of rivers
@@ -84,35 +86,44 @@ public class MapFileHandler {
 		DataOutputStream writer = null;
 		try {
 			writer = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(handle)));
+			System.out.println(1);
 			
 			// Write window width and height
 			writer.writeDouble(map.getWw());
 			writer.writeDouble(map.getWh());
+			System.out.println(1);
 			
 			// Write Color Data for land
-			writer.writeInt((int) map.getLandC().getRed());
-			writer.writeInt((int) map.getLandC().getGreen());
-			writer.writeInt((int) map.getLandC().getBlue());
+			writer.writeInt((int) (map.getLandC().getRed() * 255));
+			writer.writeInt((int) (map.getLandC().getGreen() * 255));
+			writer.writeInt((int) (map.getLandC().getBlue() * 255));
+			System.out.println(2);
 			
 			// Write Color Data for river
-			writer.writeInt((int) map.getRiverC().getRed());
-			writer.writeInt((int) map.getRiverC().getGreen());
-			writer.writeInt((int) map.getRiverC().getBlue());
+			writer.writeInt((int) (map.getRiverC().getRed() * 255));
+			writer.writeInt((int) (map.getRiverC().getGreen() * 255));
+			writer.writeInt((int) (map.getRiverC().getBlue() * 255));
+			System.out.println(3);
 			
 			// Write Number of Rivers
 			writer.writeInt(map.getRivers().size());
+			System.out.println(4);
 			
 			// Write Coordinates for each river
 			for (Polygon river : map.getRivers()) {
 				// Write Number of Points
 				writer.writeInt(river.getCoords().length);
+				System.out.println(5);
 				//Write each Point as x and y values
 				for (Point2D point : river.getCoords()) {
 					writer.writeDouble(point.getX());
 					writer.writeDouble(point.getY());
+
+					System.out.println(6);
 				}
 			}
 			writer.flush();
+			System.out.println(7);
 			saved = true;
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();

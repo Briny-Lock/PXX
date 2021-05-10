@@ -5,6 +5,7 @@ import java.util.Random;
 
 import csc2a.px.model.Common;
 import csc2a.px.model.shape.ESHAPE_TYPE;
+import csc2a.px.model.shape.Line;
 import csc2a.px.model.shape.Polygon;
 import csc2a.px.model.shape.Rectangle;
 import csc2a.px.model.visitor.IDrawVisitor;
@@ -15,7 +16,7 @@ public class Map {
 	/**
 	 * 
 	 */
-	private static final int INIT_AREA_SIZE = 70;
+	private static final int INIT_AREA_SIZE = 90;
 	private static final float AREA_SHIFT = 0.2f;
 	
 	private Rectangle land;
@@ -78,13 +79,6 @@ public class Map {
 	
 	public Point2D[] getDrawable() { return drawable; }
 	
-	public void addRiver(ArrayList<Point2D> river, double size, boolean isHorizontal) {
-		Point2D[] realRiver = getRealRiver(river, size, isHorizontal, ww, wh);
-		rivers.add(new Polygon(riverC, ESHAPE_TYPE.POLYGON, realRiver[0]));
-		rivers.get(rivers.size() - 1).setCoords(realRiver);
-		calcDrawable(new Point2D(ww/2, wh/2));
-	}
-	
 	public static Point2D[] getRealRiver(ArrayList<Point2D> river, double size, boolean isHorizontal, double ww, double wh) {
 		Point2D[] realRiver = new Point2D[river.size() * 2];
 		if (isHorizontal) {
@@ -119,7 +113,7 @@ public class Map {
 		}
 	}
 	
-	public static ArrayList<Polygon> generateRandomRivers(Color riverC, int count, int maxSegmentDist, double ww, double wh, int size) {
+	public static ArrayList<Polygon> generateRandomRivers(Color riverC, int count, int maxSegmentDist, double ww, double wh, double size) {
 		ArrayList<Polygon> rivers = new ArrayList<>();
 		for (int i = 0; i < count; i++) {
 			ArrayList<Point2D> river = new ArrayList<>();
@@ -206,6 +200,70 @@ public class Map {
 		}
 		
 		return rivers;
+	}
+	
+	public Point2D[] getBridge(Point2D p1, Point2D p2) {
+		Point2D[] bridge = null;
+		Point2D mid = Line.calcMidpoint(p1, p2);
+		double m1 = (mid.getY() - p1.getY())/(mid.getX() - p1.getX()); 
+		double c1 = (-m1 * p1.getX()) + p1.getY(); // y = m(x - x1) + y1 OR y = mx + (-mx1 + y1) == y = mx + c
+		double m2 = (p2.getY() - mid.getY())/(p2.getX() - mid.getX()); 
+		double c2 = (-m2 * mid.getX()) + mid.getY(); // y = m(x - x1) + y1 OR y = mx + (-mx1 + y1) == y = mx + c
+		for (Polygon polygon : rivers) {
+			for (int i = 1; i < polygon.getCoords().length/2; i++) {
+				Point2D p3 = polygon.getCoords()[i - 1], 
+						p4 = polygon.getCoords()[i];
+				Point2D p5 = polygon.getCoords()[polygon.getCoords().length - i - 1],
+						p6 = polygon.getCoords()[polygon.getCoords().length - i - 2];
+				double pm1 = (p4.getY() - p3.getY())/(p4.getX() - p3.getX()); 
+				double pc1 = (-pm1 * p3.getX()) + p3.getY(); // y = mx + (-mx1 + y1)
+				double pm2 = (p6.getY() - p5.getY())/(p6.getX() - p5.getX()); 
+				double pc2 = (-pm2 * p5.getX()) + p5.getY(); // y = mx + (-mx1 + y1)
+				// Supposed x intersections
+				double x1 = (pc1 - c1)/(m1 - pm1); // tmx + tc = pmx + pc OR x = (pc - tc)/(tm - pm)
+				double y1 = (m1 * x1) + c1;
+				double x2 = (pc2 - c2)/(m2 - pm2); // tmx + tc = pmx + pc OR x = (pc - tc)/(tm - pm)
+				double y2 = (m2 * x2) + c2;
+				
+				//Test if lines cross
+				boolean hasBridge = false;
+				Point2D start = null,
+						newMid = null,
+						end = null;
+				if ((y1 == (pm1 * x1) + pc1) && (p1.getY() == mid.getY() || Common.isBetween(p1.getY(), mid.getY(), y1))) {
+					double newX = (pc1 - c1)/(m1 - pm1);
+					double newY = (m1 * newX) + c1;
+					start = new Point2D(x1, y1);
+					newMid = new Point2D(newX, newY);
+					hasBridge = true;
+				}
+				if ((y2 == (pm2 * x2) + pc2) && (mid.getY() == p2.getY() || Common.isBetween(mid.getY(), p2.getY(), y1))) {
+					double newX = (pc2 - c2)/(m2 - pm2);
+					double newY = (m2 * newX) + c2;
+					newMid = new Point2D(x2, y2);
+					end = new Point2D(newX, newY);
+					hasBridge = true;
+				}
+				if (hasBridge) {
+					if (start != null && end != null) {
+						bridge = new Point2D[3];
+						bridge[0] = start;
+						bridge[1] = mid;
+						bridge[2] = end;
+					} else if (start != null) {
+						bridge = new Point2D[2];
+						bridge[0] = start;
+						bridge[1] = newMid;
+					} else {
+						bridge = new Point2D[2];
+						bridge[0] = newMid;
+						bridge[1] = end;
+					}
+					return bridge;
+				}
+			}
+		}
+		return bridge;
 	}
 
 	/**

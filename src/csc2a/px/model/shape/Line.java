@@ -55,8 +55,8 @@ public class Line extends Polygon {
 			start = dest;
 			dest = temp;
 		}
-		//TODO calc midpoint
 		double angle = Math.atan((dest.getY() - start.getY())/(dest.getX() - dest.getY())) * 180/Math.PI;
+		
 		// Checks if line is already in ideal state
 		if (Arrays.asList(0.0, 45.0, -45.0, Double.NaN, 90, -90).contains(angle)) {
 			return start;
@@ -67,7 +67,7 @@ public class Line extends Polygon {
 		Point2D midpoint;
 		if(Math.abs(diff.getX()) > Math.abs(diff.getY())) {	// m = (ydiff)/(xdiff)
 			double x;			
-			if(diff.getY() == Math.abs(diff.getY())) {
+			if(start.getX() < dest.getX()) {
 				x = (dest.getX() - diff.getY()); // m = 1; x = destX - diffY
 			} else {
 				x = (dest.getX() + diff.getY()); // m = -1; x = destX + diffY

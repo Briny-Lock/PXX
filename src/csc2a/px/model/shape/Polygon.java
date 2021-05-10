@@ -5,7 +5,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 
 public class Polygon extends Shape {
-	protected Point2D[] coords;	
+	protected Point2D[] coords;
 
 	public Polygon(Color c, ESHAPE_TYPE type, Point2D refPos) {
 		super(c, type, refPos);
@@ -47,5 +47,17 @@ public class Polygon extends Shape {
 	@Override
 	public void draw(IDrawVisitor v, boolean hasFill) {
 		v.visit(this, hasFill);
+	}
+
+
+	@Override
+	public void setSize(double size) {
+		this.size = size;
+	}
+	
+	@Override
+	public void setPos(Point2D pos) {
+		super.setPos(pos);
+		calcCoords();
 	}
 }
