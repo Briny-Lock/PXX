@@ -6,6 +6,11 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 
+/**
+ * @author JC Swanzen (220134523)
+ * @version PXX
+ * Start menu
+ */
 public class StartPane extends StackPane {
 	public StartPane(Image image, double w, double h) {
 		ImageView iv = new ImageView(image);

@@ -10,6 +10,11 @@ import javafx.geometry.Point2D;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
+/**
+ * @author JC Swanzen (220134523)
+ * @version PXX
+ *
+ */
 public class Carriage implements IDrawable {
 	public static final int MAX_GOODS = 6;
 

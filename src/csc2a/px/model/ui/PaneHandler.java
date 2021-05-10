@@ -12,7 +12,12 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 
-public class PracticalPane extends BorderPane {
+/**
+ * @author JC Swanzen (220134523)
+ * @version PXX
+ * Handles ui transitioning
+ */
+public class PaneHandler extends BorderPane {
 	private static final Color DEF_C = Color.WHITE;
 	private static final Color DEF_LAND_C = Color.MEDIUMSEAGREEN;
 	private static final Color DEF_RIVER_C = Color.CORNFLOWERBLUE;
@@ -26,7 +31,7 @@ public class PracticalPane extends BorderPane {
 	private GameLoop gameLoop;
 	private GameCanvas canvas;
 	private StartPane startPane;
-	public PracticalPane(Image carriageImage, Image startImage) {
+	public PaneHandler(Image carriageImage, Image startImage) {
 		startPane = new StartPane(startImage, 800, 600);
 		setMinSize(800, 600);
 		setPrefSize(800, 600);
@@ -80,8 +85,8 @@ public class PracticalPane extends BorderPane {
 					errorAlert.showAndWait();
 				} else {
 					setRight(gameInfoPane);
-					canvas.setWidth(PracticalPane.this.getWidth() - gameInfoPane.getWidth());
-					canvas.setHeight(PracticalPane.this.getHeight() - gameMenu.getHeight());
+					canvas.setWidth(PaneHandler.this.getWidth() - gameInfoPane.getWidth());
+					canvas.setHeight(PaneHandler.this.getHeight() - gameMenu.getHeight());
 					setCenter(canvas);;
 					canvas.play();
 					gameLoop.start();
@@ -91,8 +96,8 @@ public class PracticalPane extends BorderPane {
 			@Override
 			public void randomRiver() {
 				setRight(gameInfoPane);
-				canvas.setWidth(PracticalPane.this.getWidth() - gameInfoPane.getWidth());
-				canvas.setHeight(PracticalPane.this.getHeight() - gameMenu.getHeight());
+				canvas.setWidth(PaneHandler.this.getWidth() - gameInfoPane.getWidth());
+				canvas.setHeight(PaneHandler.this.getHeight() - gameMenu.getHeight());
 				setCenter(canvas);
 				Random random = new Random();
 				Map map = new Map(DEF_LAND_C, DEF_RIVER_C, canvas.getWidth(), 

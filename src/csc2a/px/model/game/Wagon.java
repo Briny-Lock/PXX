@@ -9,6 +9,11 @@ import javafx.geometry.Point2D;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
+/**
+ * @author JC Swanzen (220134523)
+ * @version PXX
+ *
+ */
 public class Wagon {
 	private static final int DEF_MAX_CARRIAGES = 4;
 	private static final int TICKS_TO_TRANSFER = 15;

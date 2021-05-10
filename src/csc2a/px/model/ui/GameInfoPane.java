@@ -5,6 +5,11 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 
+/**
+ * @author JC Swanzen (220134523)
+ * @version PXX
+ *
+ */
 public class GameInfoPane extends GridPane {
 	private Label reputationLabel;
 	private Label coinLabel;

@@ -14,6 +14,11 @@ import javafx.geometry.Point2D;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
+/**
+ * @author JC Swanzen (220134523)
+ * @version PXX
+ *
+ */
 public class GameController {
 	private static final int NUM_ROUTES = 6;
 	private static final int TICKS_TO_NEW_TOWN = 400;

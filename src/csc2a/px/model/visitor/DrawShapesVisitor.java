@@ -12,6 +12,11 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.transform.Rotate;
 
 
+/**
+ * @author JC Swanzen (220134523)
+ * @version PXX
+ *
+ */
 public class DrawShapesVisitor implements IDrawVisitor {
 	private GraphicsContext gc;
 	
@@ -91,6 +96,11 @@ public class DrawShapesVisitor implements IDrawVisitor {
 		gc.setEffect(null);
 	}
 	
+	
+	/**
+	 * @param c Carriage to transform context for
+	 * This function rotates the transform to ensure a carriage is rendered in the right direction
+	 */
 	private void transformContext(Carriage c){
         Point2D centre = c.getCenter();
         Rotate r = new Rotate(c.getRotation() + 90, centre.getX(), centre.getY());

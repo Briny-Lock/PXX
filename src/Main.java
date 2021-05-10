@@ -1,9 +1,14 @@
-import csc2a.px.model.ui.PracticalPane;
+import csc2a.px.model.ui.PaneHandler;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
+/**
+ * @author JC Swanzen (220134523)
+ * @version PXX
+ *
+ */
 public class Main extends Application{
 
 	public static void main(String[] args) {
@@ -15,7 +20,7 @@ public class Main extends Application{
 		Image carImage = new Image(getClass().getResourceAsStream("assets/carriage.png"));
 		Image coinImage = new Image(getClass().getResourceAsStream("assets/coinIcon.png"));
 		Image startImage = new Image(getClass().getResourceAsStream("assets/start.png"));
-		PracticalPane root = new PracticalPane(carImage, startImage);
+		PaneHandler root = new PaneHandler(carImage, startImage);
 		Scene scene = new Scene(root, 800, 600);
 		root.setKeyHandler(scene);
 		

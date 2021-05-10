@@ -16,6 +16,11 @@ import javafx.scene.input.KeyCombination;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 
+/**
+ * @author JC Swanzen (220134523)
+ * @version PXX
+ *
+ */
 public abstract class GameMenuBar extends MenuBar {	
 	public GameMenuBar() {
 		

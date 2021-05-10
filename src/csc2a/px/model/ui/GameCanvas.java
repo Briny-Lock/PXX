@@ -6,6 +6,11 @@ import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.input.MouseButton;
 
+/**
+ * @author JC Swanzen (220134523)
+ * @version PXX
+ *
+ */
 public class GameCanvas extends Canvas {
 	private DrawShapesVisitor visitor;
 	private GameController controller;

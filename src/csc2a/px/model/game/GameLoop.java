@@ -2,6 +2,11 @@ package csc2a.px.model.game;
 
 import javafx.animation.AnimationTimer;
 
+/**
+ * @author JC Swanzen (220134523)
+ * @version PXX
+ *
+ */
 public abstract class GameLoop extends AnimationTimer {
 
 	boolean isPaused = false, pauseScheduled = false, playScheduled = false;
