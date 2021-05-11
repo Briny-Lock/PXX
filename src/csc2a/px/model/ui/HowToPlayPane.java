@@ -16,6 +16,7 @@ import javafx.scene.text.TextAlignment;
  */
 public final class HowToPlayPane extends Pane {
 	public HowToPlayPane() {
+		this.setStyle("-fx-background-color: mediumseagreen");
 		Label description = new Label("\tMerchants is a Strategy Puzzle game set in a Medieval world, using the Abstract Factory design pattern.\r\n"
 				+ "\tIn Merchants you play as an up and coming merchant in an ever expanding connection of towns. Each town sells and buys goods to and \n"
 				+ "\tfrom other towns using your trade routes. Delivering these goods earns you coin which you can use to further expand your trade routes \n"

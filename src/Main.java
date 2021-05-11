@@ -17,9 +17,9 @@ public class Main extends Application{
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		Image carImage = new Image(getClass().getResourceAsStream("assets/carriage.png"));
-		Image coinImage = new Image(getClass().getResourceAsStream("assets/coinIcon.png"));
-		Image startImage = new Image(getClass().getResourceAsStream("assets/start.png"));
+		Image carImage = new Image(getClass().getResourceAsStream("/assets/carriage.png"));
+		Image coinImage = new Image(getClass().getResourceAsStream("/assets/coin_icon.png"));
+		Image startImage = new Image(getClass().getResourceAsStream("/assets/start.png"));
 		PaneHandler root = new PaneHandler(carImage, startImage);
 		Scene scene = new Scene(root, 800, 600);
 		root.setKeyHandler(scene);

@@ -38,9 +38,10 @@ public class PaneHandler extends BorderPane {
 	public PaneHandler(Image carriageImage, Image startImage) {
 		winPane = new WinPane();
 		losePane = new LosePane();
-		
+		aboutPane = new AboutPane();		
 		howToPlayePane = new HowToPlayPane();
 		startPane = new StartPane(startImage, 800, 600);
+		
 		setMinSize(800, 600);
 		setPrefSize(800, 600);
 		setMaxSize(800, 600);
