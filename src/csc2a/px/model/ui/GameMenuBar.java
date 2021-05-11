@@ -19,7 +19,7 @@ import javafx.stage.FileChooser.ExtensionFilter;
 /**
  * @author JC Swanzen (220134523)
  * @version PXX
- *
+ * MenuBar for project
  */
 public abstract class GameMenuBar extends MenuBar {	
 	public GameMenuBar() {

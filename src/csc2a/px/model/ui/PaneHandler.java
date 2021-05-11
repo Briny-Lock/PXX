@@ -15,7 +15,7 @@ import javafx.scene.paint.Color;
 /**
  * @author JC Swanzen (220134523)
  * @version PXX
- * Handles ui transitioning
+ * Handles ui transitions
  */
 public class PaneHandler extends BorderPane {
 	private static final Color DEF_C = Color.WHITE;
@@ -32,6 +32,7 @@ public class PaneHandler extends BorderPane {
 	private GameCanvas canvas;
 	private StartPane startPane;
 	public PaneHandler(Image carriageImage, Image startImage) {
+		howToPlayePane = new HowToPlayPane();
 		startPane = new StartPane(startImage, 800, 600);
 		setMinSize(800, 600);
 		setPrefSize(800, 600);
