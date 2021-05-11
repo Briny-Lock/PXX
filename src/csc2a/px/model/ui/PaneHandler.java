@@ -2,6 +2,7 @@ package csc2a.px.model.ui;
 
 import java.util.Random;
 
+import csc2a.px.model.game.EGAME_STATE;
 import csc2a.px.model.game.GameController;
 import csc2a.px.model.game.GameLoop;
 import csc2a.px.model.game.Map;
@@ -9,6 +10,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 
@@ -31,7 +33,12 @@ public class PaneHandler extends BorderPane {
 	private GameLoop gameLoop;
 	private GameCanvas canvas;
 	private StartPane startPane;
+	private WinPane winPane;
+	private LosePane losePane;
 	public PaneHandler(Image carriageImage, Image startImage) {
+		winPane = new WinPane();
+		losePane = new LosePane();
+		
 		howToPlayePane = new HowToPlayPane();
 		startPane = new StartPane(startImage, 800, 600);
 		setMinSize(800, 600);
@@ -50,6 +57,10 @@ public class PaneHandler extends BorderPane {
 
 			@Override
 			public void tick(float deltaTime) {
+				if (controller.getGameState() != EGAME_STATE.CONTINUE) {
+					gameLoop.stop();
+					outputGameState(controller.getGameState());
+				}
 				controller.update(deltaTime);
 				gameInfoPane.updateInfo(controller);
 				canvas.redrawCanvas();
@@ -97,6 +108,7 @@ public class PaneHandler extends BorderPane {
 			@Override
 			public void randomRiver() {
 				setRight(gameInfoPane);
+				canvas.clear();
 				canvas.setWidth(PaneHandler.this.getWidth() - gameInfoPane.getWidth());
 				canvas.setHeight(PaneHandler.this.getHeight() - gameMenu.getHeight());
 				setCenter(canvas);
@@ -110,9 +122,11 @@ public class PaneHandler extends BorderPane {
 
 			@Override
 			public void addMap(Map map) {
+				canvas.setWidth(PaneHandler.this.getWidth() - gameInfoPane.getWidth());
+				canvas.setHeight(PaneHandler.this.getHeight() - gameMenu.getHeight());
 				canvas.clear();
 				controller.setMap(map);
-				setLeft(null);
+				setRight(gameInfoPane);
 				setCenter(canvas);
 				canvas.redrawCanvas();
 			}
@@ -126,10 +140,30 @@ public class PaneHandler extends BorderPane {
 		this.setTop(gameMenu);
 	}
 
+	private void outputGameState(EGAME_STATE gameState) {
+		switch (gameState) {
+		case CONTINUE:
+			gameLoop.start();
+			setCenter(canvas);
+			setRight(gameInfoPane);
+			break;
+		case LOSE:
+			setRight(null);
+			setCenter(losePane);
+			break;
+		case WIN:
+			setRight(null);
+			setCenter(winPane);
+			break;
+		default:
+			break;
+		
+		}
+	}
+	
 	public void setKeyHandler(Scene scene) {
-		setOnKeyPressed(event -> {
-			switch (event.getCode()) {
-			case SPACE:
+		scene.setOnKeyPressed(event -> {
+			if (event.getCode() == KeyCode.SPACE) {
 				if (gameLoop.isPaused()) {
 					canvas.play();
 					gameLoop.play();
@@ -138,9 +172,39 @@ public class PaneHandler extends BorderPane {
 					canvas.pause();
 					gameLoop.pause();
 				}
-				break;
-			default:
-				break;
+			}
+			if (!gameLoop.isPaused()) {
+				switch (event.getCode()) {
+				case Q:
+					controller.purchaseRoute();
+					break;
+				case W:
+					controller.addWagon();
+					break;
+				case E:
+					controller.addCarriage();
+					break;
+				case DIGIT1:
+					controller.setCurrentRoute(1);
+					break;
+				case DIGIT2:
+					controller.setCurrentRoute(2);
+					break;
+				case DIGIT3:
+					controller.setCurrentRoute(3);
+					break;
+				case DIGIT4:
+					controller.setCurrentRoute(4);
+					break;
+				case DIGIT5:
+					controller.setCurrentRoute(5);
+					break;
+				case DIGIT6:
+					controller.setCurrentRoute(6);
+					break;
+				default:
+					break;
+				}
 			}
 		});
 	}

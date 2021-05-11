@@ -79,46 +79,7 @@ public class GameCanvas extends Canvas {
 	public void setController(GameController controller) { this.controller = controller; }
 
 	public void play() {
-		setKeyHandler();
 		this.isPaused = false;
-	}
-
-	private void setKeyHandler() {
-		this.getScene().setOnKeyPressed(event -> {
-			if (!isPaused) {
-				switch (event.getCode()) {
-				case Q:
-					controller.purchaseRoute();
-					break;
-				case W:
-					controller.addWagon();
-					break;
-				case E:
-					controller.addCarriage();
-					break;
-				case DIGIT1:
-					controller.setCurrentRoute(1);
-					break;
-				case DIGIT2:
-					controller.setCurrentRoute(2);
-					break;
-				case DIGIT3:
-					controller.setCurrentRoute(3);
-					break;
-				case DIGIT4:
-					controller.setCurrentRoute(4);
-					break;
-				case DIGIT5:
-					controller.setCurrentRoute(5);
-					break;
-				case DIGIT6:
-					controller.setCurrentRoute(6);
-					break;
-				default:
-					break;
-				}
-			}
-		});
 	}
 
 	public void pause() {

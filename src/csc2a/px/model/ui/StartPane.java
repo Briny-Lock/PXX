@@ -29,7 +29,7 @@ public class StartPane extends Pane {
 		this.getChildren().add(iv);
 		this.getChildren().addAll(title, info);	
 
-		title.relocate(w/2 - title.getWidth() - 80, h/7);
+		title.relocate(w/2 - title.getWidth() - 80, h/5 - 100);
 		info.relocate(w/2 - info.getWidth() - 300, 3 * h/4);
 	}
 }

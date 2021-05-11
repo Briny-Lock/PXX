@@ -25,7 +25,7 @@ public class GameController {
 	private static final int CARR_W = 10;
 	private static final int CARR_H = 20;
 	private static final int START_COIN = 100;
-	private static final int START_REP = 99;
+	private static final int START_REP = 0;
 	private static final int BORDER_ADJUSTMENT = 40;
 	
 	

@@ -38,14 +38,12 @@ public class MapFileHandler {
 			int r = reader.readInt();
 			int g = reader.readInt();
 			int b = reader.readInt();
-			System.out.printf("%d:%d:%d\n", r, g, b);
 			Color landC = Color.rgb(r, g, b);
 			
 			// Read Color Data for river
 			r = reader.readInt();
 			g = reader.readInt();
 			b = reader.readInt();
-			System.out.printf("%d:%d:%d\n", r, g, b);
 			Color riverC = Color.rgb(r, g, b);
 
 			// Read Number of rivers
@@ -79,7 +77,6 @@ public class MapFileHandler {
 				try {
 					reader.close();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 		}

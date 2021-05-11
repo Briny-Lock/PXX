@@ -5,7 +5,9 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.TextAlignment;
 
 /**
  * @author JC Swanzen (220134523)
@@ -14,21 +16,44 @@ import javafx.scene.layout.VBox;
  */
 public final class HowToPlayPane extends Pane {
 	public HowToPlayPane() {
-		Label discription = new Label("Merchants is a Strategy Puzzle game set in a Medieval world, using the Abstract Factory design pattern.\r\n"
-				+ "In Merchants you play as an up and coming merchant in an ever expanding connection of towns. Each town sells and buys goods to and "
-				+ "from other towns using your trade routes. Delivering these goods earns you coin which you can use to further expand your trade routes "
-				+ "to accompany more and more towns that start to request your services. Be careful, however, because competition is tough and even the "
-				+ "smallest knock to your reputation can cause the towns to refer to your competitors.");
+		Label description = new Label("\tMerchants is a Strategy Puzzle game set in a Medieval world, using the Abstract Factory design pattern.\r\n"
+				+ "\tIn Merchants you play as an up and coming merchant in an ever expanding connection of towns. Each town sells and buys goods to and \n"
+				+ "\tfrom other towns using your trade routes. Delivering these goods earns you coin which you can use to further expand your trade routes \n"
+				+ "\tto accompany more and more towns that start to request your services. Be careful, however, because competition is tough and even the \n"
+				+ "\tsmallest knock to your reputation can cause the towns to refer to your competitors.");
+		description.setTextAlignment(TextAlignment.JUSTIFY);
 		GridPane rules = new GridPane();
 		VBox vbox = new VBox();
-		vbox.getChildren().addAll(discription, rules);
+		vbox.getChildren().addAll(description, rules);
 
-		ImageView ivQ = new ImageView(new Image(getClass().getResourceAsStream("assets/Q.png")));
-		ImageView ivW = new ImageView(new Image(getClass().getResourceAsStream("assets/W.png")));
-		ImageView ivE = new ImageView(new Image(getClass().getResourceAsStream("assets/E.png")));
-		ImageView ivSpace = new ImageView(new Image(getClass().getResourceAsStream("assets/Space.png")));
-		ImageView ivDrag = new ImageView(new Image(getClass().getResourceAsStream("assets/drag.png")));
-		ImageView ivLose = new ImageView(new Image(getClass().getResourceAsStream("assets/lose.png")));
+		for (int i = 0; i < 4; i++) {
+			RowConstraints rows = new RowConstraints(70);
+			rules.getRowConstraints().add(rows);
+		}
+		
+		for (int i = 0; i < 2; i++) {
+			RowConstraints rows = new RowConstraints(100);
+			rules.getRowConstraints().add(rows);
+		}
+		
+		ImageView ivQ = new ImageView(new Image(getClass().getResourceAsStream("/assets/Q.png")));
+		ivQ.setFitWidth(64);
+		ivQ.setFitHeight(64);
+		ImageView ivW = new ImageView(new Image(getClass().getResourceAsStream("/assets/W.png")));
+		ivW.setFitWidth(64);
+		ivW.setFitHeight(64);
+		ImageView ivE = new ImageView(new Image(getClass().getResourceAsStream("/assets/E.png")));
+		ivE.setFitWidth(64);
+		ivE.setFitHeight(64);
+		ImageView ivSpace = new ImageView(new Image(getClass().getResourceAsStream("/assets/Space.png")));
+		ivSpace.setFitWidth(120);
+		ivSpace.setFitHeight(64);
+		ImageView ivDrag = new ImageView(new Image(getClass().getResourceAsStream("/assets/drag.png")));
+		ivDrag.setFitWidth(146);
+		ivDrag.setFitHeight(89);
+		ImageView ivLose = new ImageView(new Image(getClass().getResourceAsStream("/assets/lose.png")));
+		ivLose.setFitWidth(124);
+		ivLose.setFitHeight(100);
 		
 		
 		Label lbQ = new Label("Press Q to buy a new route");
