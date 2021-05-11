@@ -21,7 +21,7 @@ public class StartPane extends Pane {
 		iv.setFitWidth(w);
 		iv.setFitHeight(h);
 		title = new Label("Merchants");
-		title.setStyle("-fx-font-weight: bold; -fx-font-size: 20pt;");
+		title.setStyle("-fx-font-weight: bold; -fx-font-size: 20pt; -fx-font-family: stencil");
 		info = new Label("Select a map from File, then go to Game and click 'Start'\n"
 				+ "Refer to the 'How To Play' section under Game for additional information");
 		info.setStyle("-fx-font-weight: bold; -fx-font-size: 15pt;");
